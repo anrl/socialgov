@@ -16,3 +16,5 @@ Supports
 To implement
 -----
 - Logging
+- Refactor and separate into modules.
+- Fix inconsistent capitalization of variables and constants.
