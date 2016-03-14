@@ -33,10 +33,10 @@ load("Random.js");
 // with different CustomerArrival parameters.
 // -----------------------------------------------------------------------------------------------------------------
 
-// Class of policy graph that implements a randomly generated set of 20 A and B policies (10 each).
+// Class of policy matrix that implements a randomly generated set of 20 A and B policies (10 each).
 // The class weights implement a matrix that encodes the edge weights for all the policies.
 // This allows us to quickly lookup the edge weights for policies.
-var PolicyGraph = function() {
+var PolicyMatrix = function() {
     // Creates 20x20 matrix
     this.weights = [];
     for (var i = 0; i < 20; i++) {
@@ -93,12 +93,12 @@ var PolicyGraph = function() {
             }
         }
     }
-    print("Policy graph of size 20 built.");
+    print("Policy matrix of size 20 built.");
 }
 
 var PolicySets = ["A", "B"];
 
-// Agent class. Instantiates an 'Agent' with starting funds, random aggressiveness factor wrt voting out of 100,
+// Agent class. Instantiates an 'Agent' with starting funds, random aggressiveness factor out of 100,
 // vote method, and random set of policy preferences (but generally weighted on A or B (i.e. generally clustered within
 // 0-9 or 10-19)).
 var Agent = function() {
@@ -157,22 +157,69 @@ var Agent = function() {
     }
 }
 
+// Tally is an integer array of size 20. Indices represent the policy number, and the integer is the number of votes for that policy.
+
+// top5Voted calculates the effect of just taking the top 5 voted policies.
+function top5Voted(tally, agents, policyMatrix) {
+    var result = {};
+    var oldTally = tally.slice();
+    tally.sort(function(a, b) {return (b - a);});
+    var maxTally = tally.slice(0, 5); // Take first 5 elements of sorted tally.
+    var wastedTally = tally.slice(5, 20); // Take last 15 elements of sorted tally for waste.
+
+    // First we calculate funds wasted.
+    result.fundsWasted = wastedTally.reduce(function(a, b, c, d) { return (a + b); });
+
+    // Then we calculate total funds bid.
+    result.fundsBid = result.fundsWasted + maxTally.reduce(function(a, b, c, d) { return (a + b); });
+
+    // Then we calculate the total synergies achieved using the policy matrix.
+    // (Handle potential duplicate amounts)
+    result.synergies = 0;
+    for (var i = 0; i < 5; i++) {
+        for (var j = i; j < 5; j++) {
+            var a = oldTally.indexOf(maxTally[i]);
+            var b = oldTally.indexOf(maxTally[j]);
+            result.synergies += policyMatrix[a][b];
+        }
+    }
+
+    // Finally we calculate the amount of individual satisfaction achieved.
+    result.individualSatisfaction = 0;
+    for (var i = 0; i < 5; i++) {
+        var chosenPolicy = oldTally.indexOf(maxTally[i]);
+        for (agentIndex in agents) {
+            var agentPreferences = agents[agentIndex].preferences;
+            if (agentPreferences.indexOf(chosenPolicy) >= 0) {
+                result.individualSatisfaction += 1;
+            }
+        }
+    }
+
+    return result;
+}
+
+// top10SocialWelfare takes the top 10 voted and picks the 5 of them that maximize social welfare.
+function top10SocialWelfare(tally, agents) {
+
+}
+
+var Algorithm = function(type) {
+    switch (type) {
+        case "A":
+            break;
+
+        case "B":
+    }
+}
+
 // CustomerArrival parameter can be adjusted in order to simulate rush hours.
-// BiddingAlgorithm should be a function that expects an array of size 20 where indices represent the policy numbers and contain the amount of currency bid on them.
-// It should return a JSON object of the following form:
-//
-// var result = {
-//      "synergies" : numerical,
-//      "individualSatisfaction": numerical,
-//      "fundsBid": numerical,
-//      "fundsWasted": numerical
-// }
 
 function coffeeShopSimulation(CafeCapacity, Seed, CustomerArrival, CustomerDeparture, VotePeriod, BiddingAlgorithm) {
     var sim = new Sim();
     // var cafe = new Sim.Facility("Cafe", Sim.Facility.FCFS, 1); // Cafe represents max capacity of the coffeeshop. Only agents in the cafe can vote.
     var rand = new Random(Seed);
-    var graph = new PolicyGraph(); // Generate new random policy graph.
+    var matrix = new PolicyMatrix(); // Generate new random policy matrix.
     var fundsUsed = new Sim.TimeSeries("Funds Used");
     var wastedFunds = new Sim.TimeSeries("Wasted Funds");
     var synergies = new Sim.TimeSeries("Synergies");
@@ -234,9 +281,18 @@ function coffeeShopSimulation(CafeCapacity, Seed, CustomerArrival, CustomerDepar
                 }
             }
 
-            return BiddingAlgorithm(voteTally);
-
-            // Afterwards we need a wrapper function for logging purposes that can just take the immediate result from BiddingAlgorithm.
+            // BiddingAlgorithm should be a function that expects an array of size 20 where indices represent the policy numbers and contain the amount of currency bid on them.
+            // It should return a JSON object of the following form (but
+            // not necessarily in this order):
+            //
+            // var result = {
+            //      "synergies" : numerical,
+            //      "individualSatisfaction": numerical,
+            //      "fundsBid": numerical,
+            //      "fundsWasted": numerical
+            // }
+            
+            var result = BiddingAlgorithm(voteTally, AgentCollection, matrix);
         }
     }
 
