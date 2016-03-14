@@ -211,6 +211,7 @@ var Algorithm = function(type) {
             return top5Voted;
             break;
         case "B":
+
     }
 }
 
@@ -223,7 +224,7 @@ function coffeeShopSimulation(CafeCapacity, Seed, CustomerArrival, CustomerDepar
     var matrix = new PolicyMatrix(); // Generate new random policy matrix.
 
     var fundsUsedSeries = new Sim.TimeSeries("Funds Used");
-    var wastedFundsSeries = new Sim.TimeSeries("Wasted Funds");
+    var fundsWastedSeries = new Sim.TimeSeries("Wasted Funds");
     var synergiesSeries = new Sim.TimeSeries("Synergies");
     var individualSatisfactionSeries = new Sim.TimeSeries("Individual Satisfaction");
 
@@ -306,8 +307,23 @@ function coffeeShopSimulation(CafeCapacity, Seed, CustomerArrival, CustomerDepar
 
     sim.simulate(Simtime);
 
-    fundsUsedSeries.finalize();
-    wastedFundsSeries.finalize();
-    synergiesSeries.finalize();
-    individualSatisfactionSeries.finalize();
+    fundsUsedSeries.finalize(time());
+    fundsWastedSeries.finalize(time());
+    synergiesSeries.finalize(time());
+    individualSatisfactionSeries.finalize(time());
+
+    // Build a conclusion JSON object to return of the form:
+    // var conclusion = {
+    //      "synergies" : [min, max, average, stdev];
+    //      "individualSatisfaction" : [min, max, average, stdev];
+    //      "fundsUsed" : [min, max, average, stdev];
+    //      "fundsWasted" : [min, max, average, stdev];
+    // }
+    var conclusion = {};
+    conclusion["synergies"] = [synergiesSeries.min(), synergiesSeries.max(), synergiesSeries.average(), synergiesSeries.deviation()];
+    conclusion["individualSatisfaction"] = [individualSatisfactionSeries.min(), individualSatisfactionSeries.max(), individualSatisfactionSeries.average(), individualSatisfactionSeries.deviation()];
+    conclusion["fundsUsed"] = [fundsUsedSeries.min(), fundsUsedSeries.max(), fundsUsedSeries.average(), fundsUsedSeries.deviation()];
+    conclusion["fundsWasted"] = [fundsWastedSeries.min(), fundsWastedSeries.max(), fundsWastedSeries.average(), fundsWastedSeries.deviation()];
+
+    return conclusion;
 }
