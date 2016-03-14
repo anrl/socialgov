@@ -207,8 +207,8 @@ function top10SocialWelfare(tally, agents) {
 var Algorithm = function(type) {
     switch (type) {
         case "A":
+            return top5Voted;
             break;
-
         case "B":
     }
 }
@@ -220,10 +220,10 @@ function coffeeShopSimulation(CafeCapacity, Seed, CustomerArrival, CustomerDepar
     // var cafe = new Sim.Facility("Cafe", Sim.Facility.FCFS, 1); // Cafe represents max capacity of the coffeeshop. Only agents in the cafe can vote.
     var rand = new Random(Seed);
     var matrix = new PolicyMatrix(); // Generate new random policy matrix.
-    var fundsUsed = new Sim.TimeSeries("Funds Used");
-    var wastedFunds = new Sim.TimeSeries("Wasted Funds");
-    var synergies = new Sim.TimeSeries("Synergies");
-    var individualSatisfaction = new Sim.TimeSeries("Individual Satisfaction");
+    var fundsUsedSeries = new Sim.TimeSeries("Funds Used");
+    var wastedFundsSeries = new Sim.TimeSeries("Wasted Funds");
+    var synergiesSeries = new Sim.TimeSeries("Synergies");
+    var individualSatisfactionSeries = new Sim.TimeSeries("Individual Satisfaction");
 
     // We need to use an additional data structure to store the Agent objects in order to 
     // maintain memory of their funds and preferences.
@@ -286,14 +286,17 @@ function coffeeShopSimulation(CafeCapacity, Seed, CustomerArrival, CustomerDepar
             // not necessarily in this order):
             //
             // var result = {
-            //      "synergies" : numerical,
-            //      "individualSatisfaction": numerical,
-            //      "fundsBid": numerical,
-            //      "fundsWasted": numerical
+            //      synergies : numerical,
+            //      individualSatisfaction : numerical,
+            //      fundsBid : numerical,
+            //      fundsWasted : numerical
             // }
             
             var result = BiddingAlgorithm(voteTally, AgentCollection, matrix);
+            fundsUsedSeries.record(result.fundsUsed, time());
+            synergiesSeries.record(result.synergies, time());
+            individualSatisfactionSeries.record(result.individualSatisfaction, time());
+            fundsWastedSeries.record(result.fundsWasted, time());
         }
     }
-
 }
