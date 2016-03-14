@@ -30,7 +30,7 @@ load("Random.js");
 // 5. Further improvements could involve adding currency generation (which simulates the process of mining for crypto-currencies).
 //
 // We also need to model rush hours vs. non-rush hours. This can be done with different simulations
-// with different CustomerArrival parameters.
+// with different UserArrival parameters.
 // -----------------------------------------------------------------------------------------------------------------
 
 // Class of policy matrix that implements a randomly generated set of 20 A and B policies (10 each).
@@ -62,7 +62,6 @@ var PolicyMatrix = function() {
             }
         }
     }
-    print("Finished building positive A edges");
 
     // Next we build the positively correlated edges for the B policies.
     for (var a = 10; a < 20; a++) {
@@ -78,7 +77,6 @@ var PolicyMatrix = function() {
             }
         }
     }
-    print("Finished building positive B edges");
     
     // Last we build the negatively correlated edges for the A and B policies.
     for (var a = 0; a < 10; a++) {
@@ -93,7 +91,6 @@ var PolicyMatrix = function() {
             }
         }
     }
-    print("Policy matrix of size 20 built.");
 }
 
 var PolicySets = ["A", "B"];
@@ -110,24 +107,24 @@ var Agent = function() {
     this.aggressiveness = Math.floor(Math.random() * 91) + 5; // Random aggressiveness between 5 and 95 (inclusive).
 
     this.preferenceSize = Math.floor(Math.random() * 10) + 1; // Size of preference array of random size between 1 and 10, inclusive.
-    this.preferences = new Array(preferenceSize);
+    this.preferences = new Array(this.preferenceSize);
 
     // Select one of the policy sets (i.e. A or B).
     this.preferredSet = PolicySets[Math.floor(Math.random() * 2)];
 
     // First half of preference array is guaranteed to be in preferred policy set.
-    for (var i = 0; i < Math.floor(preferenceSize/2); i++) {
-        switch (preferredSet) {
+    for (var i = 0; i < Math.floor(this.preferenceSize/2); i++) {
+        switch (this.preferredSet) {
             case "A":
-                preferences[i] = Math.floor(Math.random() * 10); // If we prefer policy set A, then pick policies guaranteed to be in A (0-9 inclusive).
+                this.preferences[i] = Math.floor(Math.random() * 10); // If we prefer policy set A, then pick policies guaranteed to be in A (0-9 inclusive).
                 break;
             case "B":
-                preferences[i] = Math.floor(Math.random() * 10) + 10; // If we prefer policy set B, then pick policies guaranteed to be in B (10-19 inclusive).
+                this.preferences[i] = Math.floor(Math.random() * 10) + 10; // If we prefer policy set B, then pick policies guaranteed to be in B (10-19 inclusive).
         }
     }
 
-    for (var i = Math.floor(preferenceSize/2) + 1; i < preferenceSize; i++) {
-        preferences[i] = Math.floor(Math.random() * 20); // Last half will contain policies from either group.
+    for (var i = Math.floor(this.preferenceSize/2) + 1; i < this.preferenceSize; i++) {
+        this.preferences[i] = Math.floor(Math.random() * 20); // Last half will contain policies from either group.
     }
 
     // Because the first elements of the policy preferences array are guaranteed to be in the preferred policy set, and we vote starting from the 
@@ -145,12 +142,12 @@ var Agent = function() {
         votes = {};
         // Builds the 'votes' object starting from the first element in the preferences array and bidding the aggressiveness amount
         // for each until they have bid on all their preferred policies or run out of funds.
-        for (var policy in preferences) {
+        for (var policy in this.preferences) {
             if (this.funds == 0) {
                 break;
             }
             var decreaseAmount = Math.min(this.funds, this.aggressiveness);
-            votes.policy = decreaseAmount;
+            votes[policy] = decreaseAmount;
             this.funds -= decreaseAmount; 
         }
         return votes;
@@ -161,40 +158,54 @@ var Agent = function() {
 
 // top5Voted calculates the effect of just taking the top 5 voted policies.
 function top5Voted(tally, agents, policyMatrix) {
+    var matrix = policyMatrix.weights;
     var result = {};
-    var oldTally = tally.slice();
-    tally.sort(function(a, b) {return (b - a);});
+    var oldTally = tally.slice(); tally.sort(function(a, b) {return (b - a);});
     var maxTally = tally.slice(0, 5); // Take first 5 elements of sorted tally.
     var wastedTally = tally.slice(5, 20); // Take last 15 elements of sorted tally for waste.
 
     // First we calculate funds wasted.
-    result.fundsWasted = wastedTally.reduce(function(a, b, c, d) { return (a + b); });
+    var waste = 0;
+    for (var v in wastedTally) {
+        if (wastedTally[v] > 0) { waste += wastedTally[v]; }
+    }
+    result.fundsWasted = waste;
 
     // Then we calculate total funds bid.
-    result.fundsBid = result.fundsWasted + maxTally.reduce(function(a, b, c, d) { return (a + b); });
+    var f = 0;
+    for (var bid in maxTally) {
+        if (maxTally[bid] > 0) { f += maxTally[bid]; }
+    }
+    f += waste;
+    result.fundsBid = f;
 
     // Then we calculate the total synergies achieved using the policy matrix.
     // (Handle potential duplicate amounts)
-    result.synergies = 0;
+    var s = 0;
     for (var i = 0; i < 5; i++) {
         for (var j = i; j < 5; j++) {
             var a = oldTally.indexOf(maxTally[i]);
             var b = oldTally.indexOf(maxTally[j]);
-            result.synergies += policyMatrix[a][b];
+            if (a >= 0 && b >= 0) { 
+                s += matrix[a][b];
+            }
         }
     }
+    result.synergies = s;
 
     // Finally we calculate the amount of individual satisfaction achieved.
-    result.individualSatisfaction = 0;
+    var ind = 0;
     for (var i = 0; i < 5; i++) {
         var chosenPolicy = oldTally.indexOf(maxTally[i]);
         for (agentIndex in agents) {
             var agentPreferences = agents[agentIndex].preferences;
             if (agentPreferences.indexOf(chosenPolicy) >= 0) {
-                result.individualSatisfaction += 1;
+                ind += 1;
             }
         }
     }
+
+    result.individualSatisfaction = ind;
 
     return result;
 }
@@ -215,15 +226,14 @@ var Algorithm = function(type) {
     }
 }
 
-// CustomerArrival parameter can be adjusted in order to simulate rush hours.
+// UserArrival parameter can be adjusted in order to simulate rush hours.
 
-function coffeeShopSimulation(CafeCapacity, Seed, CustomerArrival, CustomerDeparture, VotePeriod, BiddingAlgorithm) {
+function socialGovernanceSimulation(Seed, UserArrival, UserDeparture, VotePeriod, BiddingAlgorithm, Simtime) {
     var sim = new Sim();
-    // var cafe = new Sim.Facility("Cafe", Sim.Facility.FCFS, 1); // Cafe represents max capacity of the coffeeshop. Only agents in the cafe can vote.
     var rand = new Random(Seed);
     var matrix = new PolicyMatrix(); // Generate new random policy matrix.
 
-    var fundsUsedSeries = new Sim.TimeSeries("Funds Used");
+    var fundsBidSeries = new Sim.TimeSeries("Funds Used");
     var fundsWastedSeries = new Sim.TimeSeries("Wasted Funds");
     var synergiesSeries = new Sim.TimeSeries("Synergies");
     var individualSatisfactionSeries = new Sim.TimeSeries("Individual Satisfaction");
@@ -238,7 +248,7 @@ function coffeeShopSimulation(CafeCapacity, Seed, CustomerArrival, CustomerDepar
     var User = {
         removeAgent: function() {
             var identity = this.id;
-            delete AgentArray.identity;
+            delete AgentCollection.identity;
         },
         logTime: function() {
             // Function that is used as a callback to log the time at which the customer
@@ -254,12 +264,13 @@ function coffeeShopSimulation(CafeCapacity, Seed, CustomerArrival, CustomerDepar
             
             this.agent = new Agent();
             this.id = this.agent.id;
-            AgentArray.id = agent;
+            var newID = this.agent.id;
+            AgentCollection[newID] = this.agent;
 
-            var stayTime = rand.exponential(1.0 / CustomerDeparture);
+            var stayTime = rand.exponential(1.0 / UserDeparture);
             this.setTimer(stayTime).done(this.removeAgent);
 
-            var nextArrival = rand.exponential(1.0 / CustomerArrival);
+            var nextArrival = rand.exponential(1.0 / UserArrival);
             this.setTimer(nextArrival).done(this.start);
         }
     };
@@ -267,19 +278,20 @@ function coffeeShopSimulation(CafeCapacity, Seed, CustomerArrival, CustomerDepar
     var SpaceAgent = {
         start: function() {
             var implementedPolicies = this.callVote();
-            this.setTimer(VotePeriod).done(this.start);
+            var nextVote = rand.exponential(1.0 / VotePeriod);
+            this.setTimer(nextVote).done(this.start);
         },
 
         callVote: function() {
             voteTally = new Array(20);
             // Initialize to zero.
-            for (var a = 0; a < 20; a++) {tally[a] = 0; }
+            for (var a = 0; a < 20; a++) {voteTally[a] = 0; }
 
             for (var agent in AgentCollection) {
-                if (AgentCollection.hasOwnProperty(agent)) {
-                    ballot = AgentCollection[agent].vote();
-                    for (var policy in ballot) {
-                        if (ballot.hasOwnProperty(policy)) { tally[policy] += ballot[policy]; }
+                ballot = AgentCollection[agent].vote();
+                for (var policy in ballot) {
+                    if (ballot.hasOwnProperty(policy)) {
+                        voteTally[policy] += ballot[policy];
                     }
                 }
             }
@@ -296,10 +308,11 @@ function coffeeShopSimulation(CafeCapacity, Seed, CustomerArrival, CustomerDepar
             // }
             
             var result = BiddingAlgorithm(voteTally, AgentCollection, matrix);
-            fundsUsedSeries.record(result.fundsUsed, time());
-            synergiesSeries.record(result.synergies, time());
-            individualSatisfactionSeries.record(result.individualSatisfaction, time());
-            fundsWastedSeries.record(result.fundsWasted, time());
+            
+            synergiesSeries.record(result.synergies, sim.time());
+            individualSatisfactionSeries.record(result.individualSatisfaction, sim.time());
+            fundsBidSeries.record(result.fundsBid, sim.time());
+            fundsWastedSeries.record(result.fundsWasted, sim.time());
         }
     }
     sim.addEntity(User);
@@ -307,23 +320,34 @@ function coffeeShopSimulation(CafeCapacity, Seed, CustomerArrival, CustomerDepar
 
     sim.simulate(Simtime);
 
-    fundsUsedSeries.finalize(time());
-    fundsWastedSeries.finalize(time());
-    synergiesSeries.finalize(time());
-    individualSatisfactionSeries.finalize(time());
+    fundsBidSeries.finalize(sim.time());
+    fundsWastedSeries.finalize(sim.time());
+    synergiesSeries.finalize(sim.time());
+    individualSatisfactionSeries.finalize(sim.time());
 
     // Build a conclusion JSON object to return of the form:
     // var conclusion = {
     //      "synergies" : [min, max, average, stdev];
     //      "individualSatisfaction" : [min, max, average, stdev];
-    //      "fundsUsed" : [min, max, average, stdev];
+    //      "fundsBid" : [min, max, average, stdev];
     //      "fundsWasted" : [min, max, average, stdev];
     // }
     var conclusion = {};
-    conclusion["synergies"] = [synergiesSeries.min(), synergiesSeries.max(), synergiesSeries.average(), synergiesSeries.deviation()];
-    conclusion["individualSatisfaction"] = [individualSatisfactionSeries.min(), individualSatisfactionSeries.max(), individualSatisfactionSeries.average(), individualSatisfactionSeries.deviation()];
-    conclusion["fundsUsed"] = [fundsUsedSeries.min(), fundsUsedSeries.max(), fundsUsedSeries.average(), fundsUsedSeries.deviation()];
-    conclusion["fundsWasted"] = [fundsWastedSeries.min(), fundsWastedSeries.max(), fundsWastedSeries.average(), fundsWastedSeries.deviation()];
+    conclusion["synergies"] = [synergiesSeries.min().toFixed(2), synergiesSeries.max().toFixed(2), synergiesSeries.average().toFixed(2), synergiesSeries.deviation().toFixed(2)];
+    conclusion["individualSatisfaction"] = [individualSatisfactionSeries.min().toFixed(2), individualSatisfactionSeries.max().toFixed(2), individualSatisfactionSeries.average().toFixed(2), individualSatisfactionSeries.deviation().toFixed(2)];
+    conclusion["fundsBid"] = [fundsBidSeries.min().toFixed(2), fundsBidSeries.max().toFixed(2), fundsBidSeries.average().toFixed(2), fundsBidSeries.deviation().toFixed(2)];
+    conclusion["fundsWasted"] = [fundsWastedSeries.min().toFixed(2), fundsWastedSeries.max().toFixed(2), fundsWastedSeries.average().toFixed(2), fundsWastedSeries.deviation().toFixed(2)];
 
     return conclusion;
 }
+
+// socialGovernanceSimulation(Seed, UserArrival, UserDeparture, VotePeriod, BiddingAlgorithm, Simtime)
+
+SIMULATION_TIME = 4800;
+
+var SimulationResults = socialGovernanceSimulation(00, 1, 25, 100, top5Voted, SIMULATION_TIME);
+print("Name of field | Minimum | Maximum | Average | Standard Deviation");
+print("Total synergies: " + SimulationResults["synergies"]);
+print("Individual satisfaction: " + SimulationResults["individualSatisfaction"]);
+print("Funds bid: " + SimulationResults["fundsBid"]);
+print("Funds wasted: " + SimulationResults["fundsWasted"]);
