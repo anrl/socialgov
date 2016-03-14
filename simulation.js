@@ -204,6 +204,7 @@ function top10SocialWelfare(tally, agents) {
 
 }
 
+// Finish implementing Algorithm prototype when second algorithm is built.
 var Algorithm = function(type) {
     switch (type) {
         case "A":
@@ -220,6 +221,7 @@ function coffeeShopSimulation(CafeCapacity, Seed, CustomerArrival, CustomerDepar
     // var cafe = new Sim.Facility("Cafe", Sim.Facility.FCFS, 1); // Cafe represents max capacity of the coffeeshop. Only agents in the cafe can vote.
     var rand = new Random(Seed);
     var matrix = new PolicyMatrix(); // Generate new random policy matrix.
+
     var fundsUsedSeries = new Sim.TimeSeries("Funds Used");
     var wastedFundsSeries = new Sim.TimeSeries("Wasted Funds");
     var synergiesSeries = new Sim.TimeSeries("Synergies");
@@ -299,4 +301,13 @@ function coffeeShopSimulation(CafeCapacity, Seed, CustomerArrival, CustomerDepar
             fundsWastedSeries.record(result.fundsWasted, time());
         }
     }
+    sim.addEntity(User);
+    sim.addEntity(SpaceAgent);
+
+    sim.simulate(Simtime);
+
+    fundsUsedSeries.finalize();
+    wastedFundsSeries.finalize();
+    synergiesSeries.finalize();
+    individualSatisfactionSeries.finalize();
 }
