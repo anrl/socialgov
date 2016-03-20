@@ -10,7 +10,7 @@ var Algorithm = function(type) {
 }
 
 // top10SocialWelfare takes the top 10 voted and picks the 5 of them that maximize social welfare.
-function top10SocialWelfare(tally, agents) {
+function top10SocialWelfare(tally, agents, policyMatrix) {
 
 }
 
