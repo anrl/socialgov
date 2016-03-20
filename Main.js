@@ -1,5 +1,4 @@
-load("Sim.js");
-load("Random.js");
+load("RandomAndSimJS.js");
 load("Simulations.js");
 load("Classes.js");
 load("Algorithms.js");
