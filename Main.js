@@ -100,13 +100,39 @@ for (var a = 0; a < NUMBER_OF_SIMS; a++) {
 // First we do the synergies comparison. We then serialize two arrays containing
 // the synergy related data.
 
-var synergiesWithVoting = [];
-var synergiesWithoutVoting = [];
+// Each element of the following arrays will contain an array of [min, max, average, stdev]
+var synA = [];
+var synB = [];
+var indA = [];
+var indB = [];
 
 for (var a = 0; a < NUMBER_OF_SIMS; a++) {
-    synergiesWithVoting.push(RANDOM_POLICY_MATRICES_RESULTS[a]["synergies"]);
-    synergiesWithoutVoting.push(NO_POLICY_CHANGES_RESULTS[a]["synergies"]);
+    synA.push(RANDOM_POLICY_MATRICES_RESULTS[a]["synergies"]);
+    synB.push(NO_POLICY_CHANGES_RESULTS[a]["synergies"]);
 }
 
-print(synergiesWithVoting);
-print(synergiesWithoutVoting);
+var aveSynA = [];
+var aveSynB = [];
+var stdevSynA = [];
+var stdevSynB = [];
+
+for (var a = 0; a < NUMBER_OF_SIMS; a++) {
+    aveSynA.push(synA[a][2]);
+    aveSynB.push(synB[a][2]);
+    stdevSynA.push(synA[a][3]);
+    stdevSynB.push(synB[a][3]);
+}
+
+// Now we need to get the variances to obtain the stdev of all samples.
+var varArrSynA = stdevSynA.map( function(val, ind, arr) { return (val*val); });
+var varArrSynB = stdevSynB.map( function(val, ind, arr) { return (val*val); });
+var stdevSynA = Math.sqrt(varArrSynA.reduce(function(pv, cv) { return pv + cv; }, 0));
+var stdevSynB = Math.sqrt(varArrSynB.reduce(function(pv, cv) { return pv + cv; }, 0));
+
+print(aveSynA);
+print();
+print(aveSynB);
+print();
+print(stdevSynA);
+print();
+print(stdevSynB);
