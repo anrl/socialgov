@@ -12,9 +12,5 @@ Supports
 - Policy matrix generation
 - Randomized agent arrival
 - Space agent vote calling
-
-To implement
------
-- Logging
-- Refactor and separate into modules.
-- Fix inconsistent capitalization of variables and constants.
+- Stats output
+- Multiple simulations on same policy set
