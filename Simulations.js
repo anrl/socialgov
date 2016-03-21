@@ -26,6 +26,7 @@ function buildFixedVotes() {
 // Inputs: int Seed, float UserArrival, float UserDeparture, float VotePeriod, function BiddingAlgorithm, float SimTime
 // Returns: Javascript object of the following structure:
 //     var conclusion = {
+//          "observations" : int
 //          "synergies"              : [min, max, average, stdev];
 //          "individualSatisfaction" : [min, max, average, stdev];
 //          "fundsBid"               : [min, max, average, stdev];
@@ -119,12 +120,14 @@ function fixedPolicySimulation(Seed, UserArrival, UserDeparture, VotePeriod, Bid
 
     // Build a conclusion JSON object to return of the form:
     // var conclusion = {
+    //      "observations" : int
     //      "synergies" : [min, max, average, stdev];
     //      "individualSatisfaction" : [min, max, average, stdev];
     //      "fundsBid" : [min, max, average, stdev];
     //      "fundsWasted" : [min, max, average, stdev];
     // }
     var conclusion = {};
+    conclusion["observations"] = synergiesSeries.count();
     conclusion["synergies"] = [synergiesSeries.min().toFixed(2), synergiesSeries.max().toFixed(2), synergiesSeries.average().toFixed(2), synergiesSeries.deviation().toFixed(2)];
     conclusion["individualSatisfaction"] = [individualSatisfactionSeries.min().toFixed(2), individualSatisfactionSeries.max().toFixed(2), individualSatisfactionSeries.average().toFixed(2), individualSatisfactionSeries.deviation().toFixed(2)];
     conclusion["fundsBid"] = [fundsBidSeries.min().toFixed(2), fundsBidSeries.max().toFixed(2), fundsBidSeries.average().toFixed(2), fundsBidSeries.deviation().toFixed(2)];
@@ -136,6 +139,7 @@ function fixedPolicySimulation(Seed, UserArrival, UserDeparture, VotePeriod, Bid
 // Inputs: int Seed, float UserArrival, float UserDeparture, float VotePeriod, function BiddingAlgorithm, float SimTime, PolicyMatrix InputMatrix
 // Returns: Javascript object of the following structure:
 //     var conclusion = {
+    //      "observations" : int
 //          "synergies"              : [min, max, average, stdev];
 //          "individualSatisfaction" : [min, max, average, stdev];
 //          "fundsBid"               : [min, max, average, stdev];
@@ -246,6 +250,7 @@ function singlePolicyMatrixSimulation(Seed, UserArrival, UserDeparture, VotePeri
     //      "fundsWasted" : [min, max, average, stdev];
     // }
     var conclusion = {};
+    conclusion["observations"] = synergiesSeries.count();
     conclusion["synergies"] = [synergiesSeries.min().toFixed(2), synergiesSeries.max().toFixed(2), synergiesSeries.average().toFixed(2), synergiesSeries.deviation().toFixed(2)];
     conclusion["individualSatisfaction"] = [individualSatisfactionSeries.min().toFixed(2), individualSatisfactionSeries.max().toFixed(2), individualSatisfactionSeries.average().toFixed(2), individualSatisfactionSeries.deviation().toFixed(2)];
     conclusion["fundsBid"] = [fundsBidSeries.min().toFixed(2), fundsBidSeries.max().toFixed(2), fundsBidSeries.average().toFixed(2), fundsBidSeries.deviation().toFixed(2)];
@@ -361,12 +366,14 @@ function randomPolicyMatrixSimulation(Seed, UserArrival, UserDeparture, VotePeri
 
     // Build a conclusion JSON object to return of the form:
     // var conclusion = {
+    //      "observations" : int
     //      "synergies" : [min, max, average, stdev];
     //      "individualSatisfaction" : [min, max, average, stdev];
     //      "fundsBid" : [min, max, average, stdev];
     //      "fundsWasted" : [min, max, average, stdev];
     // }
     var conclusion = {};
+    conclusion["observations"] = synergiesSeries.count();
     conclusion["synergies"] = [synergiesSeries.min().toFixed(2), synergiesSeries.max().toFixed(2), synergiesSeries.average().toFixed(2), synergiesSeries.deviation().toFixed(2)];
     conclusion["individualSatisfaction"] = [individualSatisfactionSeries.min().toFixed(2), individualSatisfactionSeries.max().toFixed(2), individualSatisfactionSeries.average().toFixed(2), individualSatisfactionSeries.deviation().toFixed(2)];
     conclusion["fundsBid"] = [fundsBidSeries.min().toFixed(2), fundsBidSeries.max().toFixed(2), fundsBidSeries.average().toFixed(2), fundsBidSeries.deviation().toFixed(2)];
