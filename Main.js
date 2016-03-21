@@ -3,6 +3,29 @@ load("Simulations.js");
 load("Classes.js");
 load("Algorithms.js");
 
+// Units are all in minutes
+RANDOM_SEED = 12345;
+ONE_DAY = 600;
+ARRIVAL_RATE = 5;
+STAY_TIME = 15;
+VOTE_PERIOD = 30;
+NUMBER_OF_SIMS = 100;
+
+// Helper functions.
+
+// Returns the average of all elements in an array.
+function average(arr) {
+    var t = 0;
+    for (var a in arr) {
+        t += parseInt(arr[a]);
+    }
+    return (t/arr.length);
+}
+
+function poolStdev(arr) {
+
+}
+
 // -----------------------------------------------------------------------------------------------------------------
 // We would also like to automatically generate policies (A and B side policies) with random distributions
 // to compare purely random policy implementation, fixed side policy implementation, and voting policy implementation
@@ -26,14 +49,6 @@ load("Algorithms.js");
 // We also need to model rush hours vs. non-rush hours. This can be done with different simulations
 // with different UserArrival parameters.
 // -----------------------------------------------------------------------------------------------------------------
-
-// Units are all in minutes
-RANDOM_SEED = 12345;
-ONE_DAY = 600;
-ARRIVAL_RATE = 5;
-STAY_TIME = 15;
-VOTE_PERIOD = 30;
-NUMBER_OF_SIMS = 100;
 
 // Inputs: int Seed, float UserArrival, float UserDeparture, float VotePeriod, function BiddingAlgorithm, float SimTime
 //
@@ -111,28 +126,24 @@ for (var a = 0; a < NUMBER_OF_SIMS; a++) {
     synB.push(NO_POLICY_CHANGES_RESULTS[a]["synergies"]);
 }
 
-var aveSynA = [];
-var aveSynB = [];
-var stdevSynA = [];
-var stdevSynB = [];
+var aveArrSynA = [];
+var aveArrSynB = [];
+var stdevArrSynA = [];
+var stdevArrSynB = [];
 
 for (var a = 0; a < NUMBER_OF_SIMS; a++) {
-    aveSynA.push(synA[a][2]);
-    aveSynB.push(synB[a][2]);
-    stdevSynA.push(synA[a][3]);
-    stdevSynB.push(synB[a][3]);
+    aveArrSynA.push(synA[a][2]);
+    aveArrSynB.push(synB[a][2]);
+    stdevArrSynA.push(synA[a][3]);
+    stdevArrSynB.push(synB[a][3]);
 }
 
-// Now we need to get the variances to obtain the stdev of all samples.
-var varArrSynA = stdevSynA.map( function(val, ind, arr) { return (val*val); });
-var varArrSynB = stdevSynB.map( function(val, ind, arr) { return (val*val); });
-var stdevSynA = Math.sqrt(varArrSynA.reduce(function(pv, cv) { return pv + cv; }, 0));
-var stdevSynB = Math.sqrt(varArrSynB.reduce(function(pv, cv) { return pv + cv; }, 0));
-
-print(aveSynA);
+print("Results");
 print();
-print(aveSynB);
+print("Standard deviations for all observations WITH voting on randomized policy matrices: " + average(stdevArrSynA));
 print();
-print(stdevSynA);
+print("Standard deviations for all observations WITHOUT voting on randomized policy matrices: " + average(stdevArrSynB));
 print();
-print(stdevSynB);
+print("Average synergies WITH voting on randomized policy matrices: " + average(aveArrSynA));
+print();
+print("Average synergies WITHOUT voting on randomized policy matrices: " + average(aveArrSynB));
