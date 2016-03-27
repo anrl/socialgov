@@ -3,13 +3,49 @@ load("Simulations.js");
 load("Classes.js");
 load("Algorithms.js");
 
-// Units are all in minutes
-RANDOM_SEED = 12345;
-ONE_DAY = 600;
-ARRIVAL_RATE = 5;
-STAY_TIME = 15;
-VOTE_PERIOD = 30;
-NUMBER_OF_SIMS = 100;
+function usage() {
+    print("Usage: rhino Main.js [arrival_rate] [stay_length] [voting_period] [sim_length] [policy_matrix_size] [aggressiveness] [num_policies] [random_seed] [number_of_simulations]");
+    print();
+    print("Note: All parameters are unit agnostic. Times could be in seconds, minutes, whatever.");
+    print();
+    print("Further description of command line arguments:");
+    print();
+    print(" - Average time between arrivals : float");
+    print(" - Average stay length : float");
+    print(" - Time between voting periods : float");
+    print(" - Simulation length : float");
+    print(" - Policy matrix size : int");
+    print(" - Aggressiveness : string : choice of the following: ['Low', 'Medium', 'High']");
+    print(" - Number of policies implemented : int");
+    print(" - Random seed : float");
+    print(" - Number of simulations : int");
+    quit();
+}
+
+var aggressiveMatrix = ["Low", "Medium", "High"];
+var ARRIVAL_RATE = parseFloat(arguments[0]);
+var STAY_TIME = parseFloat(arguments[1]);
+var VOTE_PERIOD = parseFloat(arguments[2]);
+var SIM_LENGTH = parseFloat(arguments[3]);
+var POLICY_MATRIX_SIZE = parseInt(arguments[4]);
+var AGGRESSIVENESS = arguments[5];
+var NUMBER_POLICIES_IMPLEMENTED = parseInt(arguments[6]);
+var RANDOM_SEED = parseFloat(arguments[7]);
+var NUMBER_OF_SIMS = parseInt(arguments[8]);
+
+if (arguments.length != 9) {
+    usage();
+} else if (isNaN(ARRIVAL_RATE)
+        || isNaN(STAY_TIME)
+        || isNaN(VOTE_PERIOD)
+        || isNaN(SIM_LENGTH)
+        || isNaN(POLICY_MATRIX_SIZE)
+        || aggressiveMatrix.indexOf(AGGRESSIVENESS) < 0
+        || isNaN(NUMBER_POLICIES_IMPLEMENTED)
+        || isNaN(RANDOM_SEED)
+        || isNaN(NUMBER_OF_SIMS)) {
+    usage();
+}
 
 // Helper functions.
 
@@ -75,7 +111,7 @@ for (var a = 0; a < NUMBER_OF_SIMS; a++) {
                 STAY_TIME,
                 VOTE_PERIOD,
                 top5Voted,
-                ONE_DAY
+                SIM_LENGTH
             )
     )
     // Run simulations each time on the same policy matrix.
@@ -86,7 +122,7 @@ for (var a = 0; a < NUMBER_OF_SIMS; a++) {
                 STAY_TIME,
                 VOTE_PERIOD,
                 top5Voted,
-                ONE_DAY,
+                SIM_LENGTH,
                 matrix
             )
     )
@@ -100,7 +136,7 @@ for (var a = 0; a < NUMBER_OF_SIMS; a++) {
                 STAY_TIME,
                 VOTE_PERIOD,
                 top5Voted,
-                ONE_DAY
+                SIM_LENGTH
             )
     )
 }
@@ -124,6 +160,8 @@ var indB = [];
 for (var a = 0; a < NUMBER_OF_SIMS; a++) {
     synA.push(RANDOM_POLICY_MATRICES_RESULTS[a]["synergies"]);
     synB.push(NO_POLICY_CHANGES_RESULTS[a]["synergies"]);
+    indA.push(RANDOM_POLICY_MATRICES_RESULTS[a]["individualSatisfaction"]);
+    indB.push(NO_POLICY_CHANGES_RESULTS[a]["individualSatisfaction"]);
 }
 
 var aveArrSynA = [];
