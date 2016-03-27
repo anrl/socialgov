@@ -22,25 +22,25 @@ function usage() {
     quit();
 }
 
-var aggressiveMatrix = ["Low", "Medium", "High"];
-var ARRIVAL_RATE = parseFloat(arguments[0]);
-var STAY_TIME = parseFloat(arguments[1]);
-var VOTE_PERIOD = parseFloat(arguments[2]);
-var SIM_LENGTH = parseFloat(arguments[3]);
-var POLICY_MATRIX_SIZE = parseInt(arguments[4]);
-var AGGRESSIVENESS = arguments[5];
-var NUMBER_POLICIES_IMPLEMENTED = parseInt(arguments[6]);
-var RANDOM_SEED = parseFloat(arguments[7]);
-var NUMBER_OF_SIMS = parseInt(arguments[8]);
+AGGRESSIVENESS_ARRAY = ["Low", "Medium", "High"];
+ARRIVAL_RATE = parseFloat(arguments[0]);
+STAY_TIME = parseFloat(arguments[1]);
+VOTE_PERIOD = parseFloat(arguments[2]);
+SIM_LENGTH = parseFloat(arguments[3]);
+POLICY_MATRIX_SIZE = parseInt(arguments[4]);
+AGGRESSIVENESS = arguments[5];
+NUMBER_POLICIES_IMPLEMENTED = parseInt(arguments[6]);
+RANDOM_SEED = parseFloat(arguments[7]);
+NUMBER_OF_SIMS = parseInt(arguments[8]);
 
 if (arguments.length != 9) {
     usage();
-} else if (isNaN(ARRIVAL_RATE)
+} else if (isNaN(ARRIVAL_RATE) // refactor to use Array.prototype.all()
         || isNaN(STAY_TIME)
         || isNaN(VOTE_PERIOD)
         || isNaN(SIM_LENGTH)
         || isNaN(POLICY_MATRIX_SIZE)
-        || aggressiveMatrix.indexOf(AGGRESSIVENESS) < 0
+        || AGGRESSIVENESS_ARRAY.indexOf(AGGRESSIVENESS) < 0
         || isNaN(NUMBER_POLICIES_IMPLEMENTED)
         || isNaN(RANDOM_SEED)
         || isNaN(NUMBER_OF_SIMS)) {
@@ -53,7 +53,7 @@ if (arguments.length != 9) {
 function average(arr) {
     var t = 0;
     for (var a in arr) {
-        t += parseInt(arr[a]);
+        t += parseFloat(arr[a]);
     }
     return (t/arr.length);
 }
@@ -100,7 +100,7 @@ var RANDOM_POLICY_MATRICES_RESULTS = [];
 var SINGLE_POLICY_MATRIX_RESULTS = [];
 var NO_POLICY_CHANGES_RESULTS = [];
 
-var matrix = new PolicyMatrix();
+var matrix = new PolicyMatrix(POLICY_MATRIX_SIZE);
 
 for (var a = 0; a < NUMBER_OF_SIMS; a++) {
     // Run simulations for random policy matrices each time.
@@ -111,7 +111,8 @@ for (var a = 0; a < NUMBER_OF_SIMS; a++) {
                 STAY_TIME,
                 VOTE_PERIOD,
                 top5Voted,
-                SIM_LENGTH
+                SIM_LENGTH,
+                POLICY_MATRIX_SIZE
             )
     )
     // Run simulations each time on the same policy matrix.
@@ -123,20 +124,23 @@ for (var a = 0; a < NUMBER_OF_SIMS; a++) {
                 VOTE_PERIOD,
                 top5Voted,
                 SIM_LENGTH,
-                matrix
+                matrix,
+                POLICY_MATRIX_SIZE
             )
     )
 
     // Run simulations on a random matrix each time but with no deviation
     // from a fixed set of votes.
-    NO_POLICY_CHANGES_RESULTS.push(
+    NO_POLICY_CHANGES_RESULTS.push( // PROBLEM IS IN HERE
+
             fixedPolicySimulation(
                 RANDOM_SEED,
                 ARRIVAL_RATE,
                 STAY_TIME,
                 VOTE_PERIOD,
                 top5Voted,
-                SIM_LENGTH
+                SIM_LENGTH,
+                POLICY_MATRIX_SIZE
             )
     )
 }
@@ -168,6 +172,7 @@ var aveArrSynA = [];
 var aveArrSynB = [];
 var stdevArrSynA = [];
 var stdevArrSynB = [];
+
 
 for (var a = 0; a < NUMBER_OF_SIMS; a++) {
     aveArrSynA.push(synA[a][2]);

@@ -15,15 +15,15 @@
 // Helper function to build a random vote tally structure (int array of size 20
 // that contains the amount bid for each policy in each respective cell).
 // Returns an int array of size 20 with random integers in each cell.
-function buildFixedVotes() {
-    var fixedVotes = new Array(20);
-    for (var a = 0; a < 20; a++) {
+function buildFixedVotes(size) {
+    var fixedVotes = new Array(size);
+    for (var a = 0; a < size; a++) {
         fixedVotes[a] = Math.floor(Math.random() * 100);
     }
     return fixedVotes;
 }
 
-// Inputs: int Seed, float UserArrival, float UserDeparture, float VotePeriod, function BiddingAlgorithm, float SimTime
+// Inputs: int Seed, float UserArrival, float UserDeparture, float VotePeriod, function BiddingAlgorithm, float SimTime, int PolicySize
 // Returns: Javascript object of the following structure:
 //     var conclusion = {
 //          "observations" : int
@@ -32,11 +32,11 @@ function buildFixedVotes() {
 //          "fundsBid"               : [min, max, average, stdev];
 //          "fundsWasted"            : [min, max, average, stdev];
 //     }
-function fixedPolicySimulation(Seed, UserArrival, UserDeparture, VotePeriod, BiddingAlgorithm, Simtime) {
+function fixedPolicySimulation(Seed, UserArrival, UserDeparture, VotePeriod, BiddingAlgorithm, Simtime, PolicySize) {
     var sim = new Sim();
     var rand = new Random(Seed);
-    var matrix = new PolicyMatrix();
-    var FixedVotes = buildFixedVotes();
+    var matrix = new PolicyMatrix(PolicySize);
+    var FixedVotes = buildFixedVotes(PolicySize);
 
     var fundsBidSeries = new Sim.TimeSeries("Funds Used");
     var fundsWastedSeries = new Sim.TimeSeries("Wasted Funds");
@@ -67,7 +67,7 @@ function fixedPolicySimulation(Seed, UserArrival, UserDeparture, VotePeriod, Bid
             
             // User is not notified if it finishes waiting in the queue or is directly accepted into the facility.
             
-            this.agent = new Agent();
+            this.agent = new Agent(PolicySize);
             this.id = this.agent.id;
             var newID = this.agent.id;
             AgentCollection[newID] = this.agent;
@@ -136,7 +136,7 @@ function fixedPolicySimulation(Seed, UserArrival, UserDeparture, VotePeriod, Bid
     return conclusion;
 }
 
-// Inputs: int Seed, float UserArrival, float UserDeparture, float VotePeriod, function BiddingAlgorithm, float SimTime, PolicyMatrix InputMatrix
+// Inputs: int Seed, float UserArrival, float UserDeparture, float VotePeriod, function BiddingAlgorithm, float SimTime, PolicyMatrix InputMatrix, int PolicySize
 // Returns: Javascript object of the following structure:
 //     var conclusion = {
     //      "observations" : int
@@ -145,7 +145,7 @@ function fixedPolicySimulation(Seed, UserArrival, UserDeparture, VotePeriod, Bid
 //          "fundsBid"               : [min, max, average, stdev];
 //          "fundsWasted"            : [min, max, average, stdev];
 //     }
-function singlePolicyMatrixSimulation(Seed, UserArrival, UserDeparture, VotePeriod, BiddingAlgorithm, Simtime, InputMatrix) {
+function singlePolicyMatrixSimulation(Seed, UserArrival, UserDeparture, VotePeriod, BiddingAlgorithm, Simtime, InputMatrix, PolicySize) {
     var sim = new Sim();
     var rand = new Random(Seed);
     var matrix = InputMatrix;
@@ -179,7 +179,7 @@ function singlePolicyMatrixSimulation(Seed, UserArrival, UserDeparture, VotePeri
             
             // User is not notified if it finishes waiting in the queue or is directly accepted into the facility.
             
-            this.agent = new Agent();
+            this.agent = new Agent(PolicySize);
             this.id = this.agent.id;
             var newID = this.agent.id;
             AgentCollection[newID] = this.agent;
@@ -194,15 +194,15 @@ function singlePolicyMatrixSimulation(Seed, UserArrival, UserDeparture, VotePeri
 
     var SpaceAgent = {
         start: function() {
-            var implementedPolicies = this.callVote();
+            this.callVote();
             var nextVote = rand.exponential(1.0 / VotePeriod);
             this.setTimer(nextVote).done(this.start);
         },
 
         callVote: function() {
-            voteTally = new Array(20);
+            voteTally = new Array(PolicySize);
             // Initialize to zero.
-            for (var a = 0; a < 20; a++) {voteTally[a] = 0; }
+            for (var a = 0; a < PolicySize; a++) {voteTally[a] = 0; }
 
             for (var agent in AgentCollection) {
                 ballot = AgentCollection[agent].vote();
@@ -259,7 +259,7 @@ function singlePolicyMatrixSimulation(Seed, UserArrival, UserDeparture, VotePeri
     return conclusion;
 }
 
-// Inputs: int Seed, float UserArrival, float UserDeparture, float VotePeriod, function BiddingAlgorithm, float SimTime
+// Inputs: int Seed, float UserArrival, float UserDeparture, float VotePeriod, function BiddingAlgorithm, float SimTime, int PolicySize
 // Returns: Javascript object of the following structure:
 //     var conclusion = {
 //          "synergies"              : [min, max, average, stdev];
@@ -267,10 +267,10 @@ function singlePolicyMatrixSimulation(Seed, UserArrival, UserDeparture, VotePeri
 //          "fundsBid"               : [min, max, average, stdev];
 //          "fundsWasted"            : [min, max, average, stdev];
 //     }
-function randomPolicyMatrixSimulation(Seed, UserArrival, UserDeparture, VotePeriod, BiddingAlgorithm, Simtime) {
+function randomPolicyMatrixSimulation(Seed, UserArrival, UserDeparture, VotePeriod, BiddingAlgorithm, Simtime, PolicySize) {
     var sim = new Sim();
     var rand = new Random(Seed);
-    var matrix = new PolicyMatrix(); // Generate new random policy matrix.
+    var matrix = new PolicyMatrix(PolicySize); // Generate new random policy matrix.
 
     var fundsBidSeries = new Sim.TimeSeries("Funds Used");
     var fundsWastedSeries = new Sim.TimeSeries("Wasted Funds");
@@ -301,7 +301,7 @@ function randomPolicyMatrixSimulation(Seed, UserArrival, UserDeparture, VotePeri
             
             // User is not notified if it finishes waiting in the queue or is directly accepted into the facility.
             
-            this.agent = new Agent();
+            this.agent = new Agent(PolicySize);
             this.id = this.agent.id;
             var newID = this.agent.id;
             AgentCollection[newID] = this.agent;
@@ -316,15 +316,15 @@ function randomPolicyMatrixSimulation(Seed, UserArrival, UserDeparture, VotePeri
 
     var SpaceAgent = {
         start: function() {
-            var implementedPolicies = this.callVote();
+            this.callVote();
             var nextVote = rand.exponential(1.0 / VotePeriod);
             this.setTimer(nextVote).done(this.start);
         },
 
         callVote: function() {
-            voteTally = new Array(20);
+            voteTally = new Array(PolicySize);
             // Initialize to zero.
-            for (var a = 0; a < 20; a++) {voteTally[a] = 0; }
+            for (var a = 0; a < PolicySize; a++) {voteTally[a] = 0; }
 
             for (var agent in AgentCollection) {
                 ballot = AgentCollection[agent].vote();
