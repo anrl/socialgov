@@ -32,7 +32,15 @@ function buildFixedVotes(size) {
 //          "fundsBid"               : [min, max, average, stdev];
 //          "fundsWasted"            : [min, max, average, stdev];
 //     }
-function fixedPolicySimulation(Seed, UserArrival, UserDeparture, VotePeriod, BiddingAlgorithm, Simtime, PolicySize) {
+function fixedPolicySimulation(
+        Seed,
+        UserArrival,
+        UserDeparture,
+        VotePeriod,
+        BiddingAlgorithm,
+        Simtime,
+        PolicySize,
+        Aggressiveness) {
     var sim = new Sim();
     var rand = new Random(Seed);
     var matrix = new PolicyMatrix(PolicySize);
@@ -67,7 +75,7 @@ function fixedPolicySimulation(Seed, UserArrival, UserDeparture, VotePeriod, Bid
             
             // User is not notified if it finishes waiting in the queue or is directly accepted into the facility.
             
-            this.agent = new Agent(PolicySize);
+            this.agent = new Agent(PolicySize, Aggressiveness, rand);
             this.id = this.agent.id;
             var newID = this.agent.id;
             AgentCollection[newID] = this.agent;
@@ -145,7 +153,17 @@ function fixedPolicySimulation(Seed, UserArrival, UserDeparture, VotePeriod, Bid
 //          "fundsBid"               : [min, max, average, stdev];
 //          "fundsWasted"            : [min, max, average, stdev];
 //     }
-function singlePolicyMatrixSimulation(Seed, UserArrival, UserDeparture, VotePeriod, BiddingAlgorithm, Simtime, InputMatrix, PolicySize) {
+function singlePolicyMatrixSimulation(
+        Seed, 
+        UserArrival, 
+        UserDeparture, 
+        VotePeriod, 
+        BiddingAlgorithm, 
+        Simtime, 
+        InputMatrix, 
+        PolicySize,
+        Aggressiveness
+        ) {
     var sim = new Sim();
     var rand = new Random(Seed);
     var matrix = InputMatrix;
@@ -179,7 +197,7 @@ function singlePolicyMatrixSimulation(Seed, UserArrival, UserDeparture, VotePeri
             
             // User is not notified if it finishes waiting in the queue or is directly accepted into the facility.
             
-            this.agent = new Agent(PolicySize);
+            this.agent = new Agent(PolicySize, Aggressiveness, rand);
             this.id = this.agent.id;
             var newID = this.agent.id;
             AgentCollection[newID] = this.agent;
@@ -267,7 +285,15 @@ function singlePolicyMatrixSimulation(Seed, UserArrival, UserDeparture, VotePeri
 //          "fundsBid"               : [min, max, average, stdev];
 //          "fundsWasted"            : [min, max, average, stdev];
 //     }
-function randomPolicyMatrixSimulation(Seed, UserArrival, UserDeparture, VotePeriod, BiddingAlgorithm, Simtime, PolicySize) {
+function randomPolicyMatrixSimulation(
+        Seed, 
+        UserArrival, 
+        UserDeparture, 
+        VotePeriod, 
+        BiddingAlgorithm, 
+        Simtime, 
+        PolicySize,
+        Aggressiveness) {
     var sim = new Sim();
     var rand = new Random(Seed);
     var matrix = new PolicyMatrix(PolicySize); // Generate new random policy matrix.
@@ -301,7 +327,7 @@ function randomPolicyMatrixSimulation(Seed, UserArrival, UserDeparture, VotePeri
             
             // User is not notified if it finishes waiting in the queue or is directly accepted into the facility.
             
-            this.agent = new Agent(PolicySize);
+            this.agent = new Agent(PolicySize, Aggressiveness, rand);
             this.id = this.agent.id;
             var newID = this.agent.id;
             AgentCollection[newID] = this.agent;

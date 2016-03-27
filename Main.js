@@ -112,7 +112,8 @@ for (var a = 0; a < NUMBER_OF_SIMS; a++) {
                 VOTE_PERIOD,
                 top5Voted,
                 SIM_LENGTH,
-                POLICY_MATRIX_SIZE
+                POLICY_MATRIX_SIZE,
+                AGGRESSIVENESS
             )
     )
     // Run simulations each time on the same policy matrix.
@@ -125,7 +126,8 @@ for (var a = 0; a < NUMBER_OF_SIMS; a++) {
                 top5Voted,
                 SIM_LENGTH,
                 matrix,
-                POLICY_MATRIX_SIZE
+                POLICY_MATRIX_SIZE,
+                AGGRESSIVENESS
             )
     )
 
@@ -140,7 +142,8 @@ for (var a = 0; a < NUMBER_OF_SIMS; a++) {
                 VOTE_PERIOD,
                 top5Voted,
                 SIM_LENGTH,
-                POLICY_MATRIX_SIZE
+                POLICY_MATRIX_SIZE,
+                AGGRESSIVENESS
             )
     )
 }
@@ -181,7 +184,7 @@ for (var a = 0; a < NUMBER_OF_SIMS; a++) {
     stdevArrSynB.push(synB[a][3]);
 }
 
-print("Results");
+print("Results:");
 print();
 print("Standard deviations for all observations WITH voting on randomized policy matrices: " + average(stdevArrSynA));
 print();

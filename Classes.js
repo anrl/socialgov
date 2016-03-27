@@ -1,13 +1,23 @@
 // Agent class. Instantiates an 'Agent' with starting funds, random aggressiveness factor out of 100,
 // vote method, and random set of policy preferences (but generally weighted on A or B (i.e. generally clustered within
 // 0-9 or 10-19)).
-var Agent = function(policyMatrixSize) {
+var Agent = function(policyMatrixSize, aggressiveness, rng) {
     // Requires a unique ID in order to effectively add/remove from the Agent collection.
     // Random integer between 0 and 999999 to string, and then append milliseconds to epoch as a good-enough form of UID.
     this.id = String(Math.floor(Math.random() * 1000000)) + String(Math.round(new Date().getTime()));
     // Assume everyone starts with same amount of currency.
     this.funds = 100;
-    this.aggressiveness = Math.floor(Math.random() * 91) + 5; // Random aggressiveness between 5 and 95 (inclusive).
+
+    switch (aggressiveness) {
+        case "Low":
+            this.aggressiveness = rng.normal(25, 5);
+            break;
+        case "Medium":
+            this.aggressiveness = rng.normal(50, 5);
+            break;
+        case "High":
+            this.aggressiveness = rng.normal(75, 5);
+    }
 
     this.preferenceSize = Math.floor(Math.random() * Math.floor(policyMatrixSize/2)) + 1; // Size of preference array of random size between 1 and 10, inclusive.
     this.preferences = new Array(this.preferenceSize);
