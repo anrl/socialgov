@@ -58,48 +58,17 @@ function average(arr) {
     return (t/arr.length);
 }
 
+// Pool standard deviations given a list of stdevs.
 function poolStdev(arr) {
 
 }
 
-// -----------------------------------------------------------------------------------------------------------------
-// We would also like to automatically generate policies (A and B side policies) with random distributions
-// to compare purely random policy implementation, fixed side policy implementation, and voting policy implementation
-// utility (using the same utility function).
-//
-// 1. After BidTime amount of time passes, a bidding round begins. For each agent currently in the set of present agents, they are
-// required to bid for their respective policies (they evenly distribute a portion of their remaining wealth to their desired
-// set of policies).
-// 
-// 2. After everyone bids, a bidding algorithm will tally the bids for each policy, and then decide which policies to actually
-// implement. We restrict this to 5 policies only.
-//
-// 3. Afterwards, we consider the policies to be implemented, and we log a score for each statistic in sim.stats:
-//  a) Synergies (i.e. societal benefit)
-//  b) Aggregate individual satisfaction
-//  c) Funds bid
-//  d) Wasted funds
-//
-// Notes: Further improvements could involve adding currency generation (which simulates the process of mining for crypto-currencies).
-//
-// We also need to model rush hours vs. non-rush hours. This can be done with different simulations
-// with different UserArrival parameters.
-// -----------------------------------------------------------------------------------------------------------------
-
-// Inputs: int Seed, float UserArrival, float UserDeparture, float VotePeriod, function BiddingAlgorithm, float SimTime
-//
-// Returns: Javascript object of the following structure:
-//     var conclusion = {
-//          "synergies"              : [min, max, average, stdev];
-//          "individualSatisfaction" : [min, max, average, stdev];
-//          "fundsBid"               : [min, max, average, stdev];
-//          "fundsWasted"            : [min, max, average, stdev];
-//     }
-
+// These arrays store the results from each iteration of simulation.
 var RANDOM_POLICY_MATRICES_RESULTS = [];
 var SINGLE_POLICY_MATRIX_RESULTS = [];
 var NO_POLICY_CHANGES_RESULTS = [];
 
+// This matrix is used for the fixed policy set simulation.
 var matrix = new PolicyMatrix(POLICY_MATRIX_SIZE);
 
 for (var a = 0; a < NUMBER_OF_SIMS; a++) {
@@ -135,7 +104,7 @@ for (var a = 0; a < NUMBER_OF_SIMS; a++) {
 
     // Run simulations on a random matrix each time but with no deviation
     // from a fixed set of votes.
-    NO_POLICY_CHANGES_RESULTS.push( // PROBLEM IS IN HERE
+    NO_POLICY_CHANGES_RESULTS.push(
 
             fixedPolicySimulation(
                 RANDOM_SEED,
@@ -151,48 +120,16 @@ for (var a = 0; a < NUMBER_OF_SIMS; a++) {
     )
 }
 
-// We iterate over each collection of results to obtain desired results.
-// 1. Comparison of synergies between fixed set of implemented policies
-// and random policy matrices (i.e. when people can vote and change the
-// implemented policies). Both with random policy matrices.
-// 2. Same as above but on the same policy matrix.
-// 3. Comparison of top5Voted vs top10Synergies on the same policy matrix.
-
-// First we do the synergies comparison. We then serialize two arrays containing
-// the synergy related data.
-
-// Each element of the following arrays will contain an array of [min, max, average, stdev]
-var synA = [];
-var synB = [];
-var indA = [];
-var indB = [];
-
-for (var a = 0; a < NUMBER_OF_SIMS; a++) {
-    synA.push(RANDOM_POLICY_MATRICES_RESULTS[a]["synergies"]);
-    synB.push(NO_POLICY_CHANGES_RESULTS[a]["synergies"]);
-    indA.push(RANDOM_POLICY_MATRICES_RESULTS[a]["individualSatisfaction"]);
-    indB.push(NO_POLICY_CHANGES_RESULTS[a]["individualSatisfaction"]);
-}
-
-var aveArrSynA = [];
-var aveArrSynB = [];
-var stdevArrSynA = [];
-var stdevArrSynB = [];
-
-
-for (var a = 0; a < NUMBER_OF_SIMS; a++) {
-    aveArrSynA.push(synA[a][2]);
-    aveArrSynB.push(synB[a][2]);
-    stdevArrSynA.push(synA[a][3]);
-    stdevArrSynB.push(synB[a][3]);
-}
-
-print("Results:");
-print();
-print("Standard deviations for all observations WITH voting on randomized policy matrices: " + average(stdevArrSynA));
-print();
-print("Standard deviations for all observations WITHOUT voting on randomized policy matrices: " + average(stdevArrSynB));
-print();
-print("Average synergies WITH voting on randomized policy matrices: " + average(aveArrSynA));
-print();
-print("Average synergies WITHOUT voting on randomized policy matrices: " + average(aveArrSynB));
+// Structure of the result of each simulation :
+//     var conclusion = {
+//          "observations" : int
+//          "synergies"              : [min, max, average, stdev];
+//          "individualSatisfaction" : [min, max, average, stdev];
+//          "fundsBid"               : [min, max, average, stdev];
+//          "fundsWasted"            : [min, max, average, stdev];
+//     }
+//
+// We currently have arrays of these results:
+// - RANDOM_POLICY_MATRICES_RESULTS
+// - SINGLE_POLICY_MATRIX_RESULTS
+// - NO_POLICY_CHANGES_RESULTS
