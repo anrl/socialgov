@@ -40,7 +40,8 @@ function fixedPolicySimulation(
         BiddingAlgorithm,
         Simtime,
         PolicySize,
-        Aggressiveness) {
+        Aggressiveness,
+        NumberImplemented) {
     var sim = new Sim();
     var rand = new Random(Seed);
     var matrix = new PolicyMatrix(PolicySize);
@@ -54,6 +55,9 @@ function fixedPolicySimulation(
     // We need to use an additional data structure to store the Agent objects in order to 
     // maintain memory of their funds and preferences.
     var AgentCollection = {};
+
+    // The current set of implemented policies.
+    var CurrentPolicies = [];
 
     // The User will act as a liaison between SimJS and our collection of Agents. Successful additions
     // to the cafe facility will call callback functions that place Agents into the collection.
@@ -100,20 +104,41 @@ function fixedPolicySimulation(
             // to simulate when there is no possible way to change the policies.
             voteTally = FixedVotes;
 
-            // BiddingAlgorithm input  : int[20] tally, object AgentCollection, PolicyMatrix matrix
+            // BiddingAlgorithm input  : int[] tally, object AgentCollection, PolicyMatrix matrix, totalToImplemented int
             // BiddingAlgorithm output : var result = {
             //      synergies : numerical,
-            //      individualSatisfaction : numerical,
             //      fundsBid : numerical,
             //      fundsWasted : numerical
+            //      policies : [int] // array of implemented policies
             // }
             
-            var result = BiddingAlgorithm(voteTally, AgentCollection, matrix);
+            var result = BiddingAlgorithm(voteTally, AgentCollection, matrix, NumberImplemented);
+            CurrentPolicies = result.policies.slice(); 
             
             synergiesSeries.record(result.synergies, sim.time());
-            individualSatisfactionSeries.record(result.individualSatisfaction, sim.time());
+            // individualSatisfactionSeries.record(result.individualSatisfaction, sim.time());
             fundsBidSeries.record(result.fundsBid, sim.time());
             fundsWastedSeries.record(result.fundsWasted, sim.time());
+        }
+    }
+
+    var SatisfactionLogger = {
+        start : function() {
+            var currentLevel = this.getSatisfaction();
+            individualSatisfactionSeries.record(currentLevel, sim.time());
+            this.setTimer(1).done(this.start);
+        },
+        getSatisfaction : function() {
+            var level = 0;
+            for (var i in agents) {
+                var prefs = agents[i].preferences;
+                for (var a = 0; a < prefs.length; a++) {
+                    if (CurrentPolicies.indexOf(prefs[a]) >= 0) {
+                        level += 1;
+                    }
+                }
+            }
+            return level;
         }
     }
     sim.addEntity(User);
@@ -162,8 +187,8 @@ function singlePolicyMatrixSimulation(
         Simtime, 
         InputMatrix, 
         PolicySize,
-        Aggressiveness
-        ) {
+        Aggressiveness,
+        NumberImplemented) {
     var sim = new Sim();
     var rand = new Random(Seed);
     var matrix = InputMatrix;
@@ -184,13 +209,6 @@ function singlePolicyMatrixSimulation(
         removeAgent: function() {
             var identity = this.id;
             delete AgentCollection.identity;
-        },
-        logTime: function() {
-            // Function that is used as a callback to log the time at which the customer
-            // left due to a long wait, in addition to incrementing some log value of total customers left.
-            //
-            // With the most naive implementation of this simulation, this is most likely unaffected by differences in
-            // policy implementation.
         },
         start: function() {
             // var req = this.useFacility(cafe, (rand.exponential(1.0 / StayTime))).waitUntil(CustomerWaitTime, this.logTime);
@@ -231,18 +249,17 @@ function singlePolicyMatrixSimulation(
                 }
             }
 
-            // BiddingAlgorithm should be a function that expects an array of size 20 where indices represent the policy numbers and contain the amount of currency bid on them.
-            // It should return a JSON object of the following form (but
+            // BiddingAlgorithm should return a JSON object of the following form (but
             // not necessarily in this order):
             //
             // var result = {
             //      synergies : numerical,
-            //      individualSatisfaction : numerical,
             //      fundsBid : numerical,
             //      fundsWasted : numerical
+            //      policies : [int] // policies that are implemented.
             // }
             
-            var result = BiddingAlgorithm(voteTally, AgentCollection, matrix);
+            var result = BiddingAlgorithm(voteTally, AgentCollection, matrix, NumberImplemented);
             
             synergiesSeries.record(result.synergies, sim.time());
             individualSatisfactionSeries.record(result.individualSatisfaction, sim.time());
@@ -293,7 +310,8 @@ function randomPolicyMatrixSimulation(
         BiddingAlgorithm, 
         Simtime, 
         PolicySize,
-        Aggressiveness) {
+        Aggressiveness,
+        NumberImplemented) {
     var sim = new Sim();
     var rand = new Random(Seed);
     var matrix = new PolicyMatrix(PolicySize); // Generate new random policy matrix.
@@ -361,21 +379,20 @@ function randomPolicyMatrixSimulation(
                 }
             }
 
-            // BiddingAlgorithm should be a function that expects an array of size 20 where indices represent the policy numbers and contain the amount of currency bid on them.
-            // It should return a JSON object of the following form (but
+            // BiddingAlgorithm should return a JSON object of the following form (but
             // not necessarily in this order):
             //
             // var result = {
             //      synergies : numerical,
-            //      individualSatisfaction : numerical,
             //      fundsBid : numerical,
-            //      fundsWasted : numerical
+            //      fundsWasted : numerical,
+            //      policies : [int] // policies that are implemented.
             // }
             
-            var result = BiddingAlgorithm(voteTally, AgentCollection, matrix);
+            var result = BiddingAlgorithm(voteTally, AgentCollection, matrix, NumberImplemented);
             
             synergiesSeries.record(result.synergies, sim.time());
-            individualSatisfactionSeries.record(result.individualSatisfaction, sim.time());
+            // individualSatisfactionSeries.record(result.individualSatisfaction, sim.time());
             fundsBidSeries.record(result.fundsBid, sim.time());
             fundsWastedSeries.record(result.fundsWasted, sim.time());
         }

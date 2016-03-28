@@ -113,7 +113,8 @@ for (var a = 0; a < NUMBER_OF_SIMS; a++) {
                 top5Voted,
                 SIM_LENGTH,
                 POLICY_MATRIX_SIZE,
-                AGGRESSIVENESS
+                AGGRESSIVENESS,
+                NUMBER_POLICIES_IMPLEMENTED
             )
     )
     // Run simulations each time on the same policy matrix.
@@ -127,7 +128,8 @@ for (var a = 0; a < NUMBER_OF_SIMS; a++) {
                 SIM_LENGTH,
                 matrix,
                 POLICY_MATRIX_SIZE,
-                AGGRESSIVENESS
+                AGGRESSIVENESS,
+                NUMBER_POLICIES_IMPLEMENTED
             )
     )
 
@@ -143,7 +145,8 @@ for (var a = 0; a < NUMBER_OF_SIMS; a++) {
                 top5Voted,
                 SIM_LENGTH,
                 POLICY_MATRIX_SIZE,
-                AGGRESSIVENESS
+                AGGRESSIVENESS,
+                NUMBER_POLICIES_IMPLEMENTED
             )
     )
 }

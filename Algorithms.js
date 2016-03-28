@@ -14,13 +14,15 @@ function top10Synergies(tally, agents, policyMatrix) {
 
 }
 
-// top5Voted calculates the effect of just taking the top 5 voted policies.
-function top5Voted(tally, agents, policyMatrix) {
+// top5Voted calculates the effect of just taking the top [total] voted policies.
+function top5Voted(tally, agents, policyMatrix, total) {
     var matrix = policyMatrix.weights;
     var result = {};
-    var oldTally = tally.slice(); tally.sort(function(a, b) {return (b - a);});
-    var maxTally = tally.slice(0, 5); // Take first 5 elements of sorted tally.
-    var wastedTally = tally.slice(5, 20); // Take last 15 elements of sorted tally for waste.
+    result.policies = [];
+    var oldTally = tally.slice();
+    tally.sort(function(a, b) {return (b - a);});
+    var maxTally = tally.slice(0, total); // Take first elements of sorted tally.
+    var wastedTally = tally.slice(total, 20); // Take last elements of sorted tally for waste.
 
     // First we calculate funds wasted.
     var waste = 0;
@@ -38,11 +40,15 @@ function top5Voted(tally, agents, policyMatrix) {
     result.fundsBid = f;
 
     // Then we calculate the total synergies achieved using the policy matrix.
-    // (Handle potential duplicate amounts)
+    // (Handle potential duplicate amounts), simultaneously telling us the policies
+    // that were implemented.
     var s = 0;
-    for (var i = 0; i < 5; i++) {
-        for (var j = i; j < 5; j++) {
-            var a = oldTally.indexOf(maxTally[i]);
+    for (var i = 0; i < total; i++) {
+        var a = oldTally.indexOf(maxTally[i]);
+
+        if (a >= 0) { result.policies.push(a); } // Add the policy number to the policies implemented.
+
+        for (var j = i; j < total; j++) {
             var b = oldTally.indexOf(maxTally[j]);
             if (a >= 0 && b >= 0) { 
                 s += matrix[a][b];
@@ -51,19 +57,19 @@ function top5Voted(tally, agents, policyMatrix) {
     }
     result.synergies = s;
 
-    // Finally we calculate the amount of individual satisfaction achieved.
-    var ind = 0;
-    for (var i = 0; i < 5; i++) {
-        var chosenPolicy = oldTally.indexOf(maxTally[i]);
-        for (agentIndex in agents) {
-            var agentPreferences = agents[agentIndex].preferences;
-            if (agentPreferences.indexOf(chosenPolicy) >= 0) {
-                ind += 1;
-            }
-        }
-    }
+    // Finally, we calculate the amount of individual satisfaction achieved.
+    // var ind = 0;
+    // for (var i = 0; i < total; i++) {
+    //     var chosenPolicy = oldTally.indexOf(maxTally[i]);
+    //     for (agentIndex in agents) {
+    //         var agentPreferences = agents[agentIndex].preferences;
+    //         if (agentPreferences.indexOf(chosenPolicy) >= 0) {
+    //             ind += 1;
+    //         }
+    //     }
+    // }
 
-    result.individualSatisfaction = ind;
+    // result.individualSatisfaction = ind;
 
     return result;
 }
