@@ -119,8 +119,8 @@ function fixedPolicySimulation(
         },
         getSatisfaction : function() {
             var level = 0;
-            for (var i in agents) {
-                var prefs = agents[i].preferences;
+            for (var i in AgentCollection) {
+                var prefs = AgentCollection[i].preferences;
                 for (var a = 0; a < prefs.length; a++) {
                     if (CurrentPolicies.indexOf(prefs[a]) >= 0) {
                         level += 1;
@@ -262,8 +262,8 @@ function singlePolicyMatrixSimulation(
         },
         getSatisfaction : function() {
             var level = 0;
-            for (var i in agents) {
-                var prefs = agents[i].preferences;
+            for (var i in AgentCollection) {
+                var prefs = AgentCollection[i].preferences;
                 for (var a = 0; a < prefs.length; a++) {
                     if (CurrentPolicies.indexOf(prefs[a]) >= 0) {
                         level += 1;
@@ -406,8 +406,8 @@ function randomPolicyMatrixSimulation(
         },
         getSatisfaction : function() {
             var level = 0;
-            for (var i in agents) {
-                var prefs = agents[i].preferences;
+            for (var i in AgentCollection) {
+                var prefs = AgentCollection[i].preferences;
                 for (var a = 0; a < prefs.length; a++) {
                     if (CurrentPolicies.indexOf(prefs[a]) >= 0) {
                         level += 1;
