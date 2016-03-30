@@ -2,6 +2,7 @@ load("RandomAndSimJS.js");
 load("Simulations.js");
 load("Classes.js");
 load("Algorithms.js");
+importPackage(java.io);
 
 function usage() {
     print("Usage: rhino Main.js [arrival_rate] [stay_length] [voting_period] [sim_length] [policy_matrix_size] [aggressiveness] [num_policies] [random_seed] [number_of_simulations]");
@@ -127,9 +128,24 @@ for (var a = 0; a < NUMBER_OF_SIMS; a++) {
 //          "individualSatisfaction" : [min, max, average, stdev];
 //          "fundsBid"               : [min, max, average, stdev];
 //          "fundsWasted"            : [min, max, average, stdev];
+//          "satisfactionOverTime"   : [array of observations];
 //     }
 //
 // We currently have arrays of these results:
 // - RANDOM_POLICY_MATRICES_RESULTS
 // - SINGLE_POLICY_MATRIX_RESULTS
 // - NO_POLICY_CHANGES_RESULTS
+
+var resultsSet = {
+    "results/random_policy_matrices_results" : RANDOM_POLICY_MATRICES_RESULTS,
+    "results/single_policy_matrix_results" : SINGLE_POLICY_MATRIX_RESULTS,
+    "results/no_policy_changes_results" : NO_POLICY_CHANGES_RESULTS
+};
+
+for (var res in resultsSet) {
+    var satCSVString = resultsSet[res][0]["satisfactionOverTime"].join();
+    var f = new File(res);
+    var pw = new PrintWriter(f);
+    pw.print(satCSVString);
+    pw.close();
+}
