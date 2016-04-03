@@ -14,10 +14,10 @@ Supports
 - Space agent vote calling
 - Stats output
 - Multiple simulations on same policy set
+- Google charts
 
 TODO
 -----
 - Update README to have a better simulation overview.
 - Limited facility capacity.
-- Google charts
 - Minimum required individual satisfaction
