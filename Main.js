@@ -137,9 +137,9 @@ for (var a = 0; a < NUMBER_OF_SIMS; a++) {
 // - NO_POLICY_CHANGES_RESULTS
 
 var resultsSet = {
-    "results/random_policy_matrices_results" : RANDOM_POLICY_MATRICES_RESULTS,
-    "results/single_policy_matrix_results" : SINGLE_POLICY_MATRIX_RESULTS,
-    "results/no_policy_changes_results" : NO_POLICY_CHANGES_RESULTS
+//    "results/random_policy_matrices_results.csv" : RANDOM_POLICY_MATRICES_RESULTS,
+//    "results/single_policy_matrix_results.csv" : SINGLE_POLICY_MATRIX_RESULTS,
+    "results/no_policy_changes_results.csv" : NO_POLICY_CHANGES_RESULTS
 };
 
 for (var res in resultsSet) {

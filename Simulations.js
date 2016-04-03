@@ -32,7 +32,7 @@
 function buildFixedVotes(size) {
     var fixedVotes = new Array(size);
     for (var a = 0; a < size; a++) {
-        fixedVotes[a] = Math.floor(Math.random() * 100);
+        fixedVotes[a] = Math.floor(Math.random() * 1000);
     }
     return fixedVotes;
 }
@@ -132,6 +132,7 @@ function fixedPolicySimulation(
     }
     sim.addEntity(User);
     sim.addEntity(SpaceAgent);
+    sim.addEntity(SatisfactionLogger);
 
     sim.simulate(Simtime);
 

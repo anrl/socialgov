@@ -1,0 +1,49 @@
+<html>
+    <head>
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+    </head>
+
+    <body>
+        <input type="file" id="fileInput">
+        <div id='chart_div'></div>
+        <script type="text/javascript">
+                google.charts.load("current", {packages:['corechart']});
+				// google.charts.setOnLoadCallback(drawChart);
+                document.getElementById("fileInput").onchange = drawChart;
+
+				function drawChart() {
+                    var file = document.getElementById('fileInput').files[0];
+                    var fr = new FileReader();
+                    fr.onload = function(e) {
+                        var arr = fr.result.split(","); 
+                        var data = new google.visualization.DataTable();
+                        data.addColumn('number', 'Index');
+                        data.addColumn('number', 'Satisfaction');
+
+                        for (var a = 0; a < arr.length; a++) {
+                            data.addRow([a,parseInt(arr[a])]);
+                        }
+      
+                        var options = {
+                          title: "Individual Satisfaction over Time",
+                          bar: {groupWidth: '95%'},
+                          legend: 'none',
+                        };
+      
+                        var chart_div = document.getElementById('chart_div');
+                        var chart = new google.visualization.LineChart(chart_div);
+      
+                        // Wait for the chart to finish drawing before calling the getImageURI() method.
+                        google.visualization.events.addListener(chart, 'ready', function () {
+                          chart_div.innerHTML = '<img src="' + chart.getImageURI() + '">';
+                          console.log(chart_div.innerHTML);
+                        });
+      
+                        chart.draw(data, options);
+                    }
+                    fr.readAsText(file);
+                }
+        </script>
+    </body>
+</html>
