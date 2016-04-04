@@ -1,3 +1,196 @@
+// Possible simTypes:
+// 1. SingleMatrix
+// 2. FixedPolicies
+// 3. default - random policies each time
+var Simulation = function(
+            simType,
+            Seed,
+            UserArrival,
+            UserDeparture, 
+            VotePeriod, 
+            BiddingAlgorithm, 
+            Simtime, 
+            InputMatrix, 
+            PolicySize,
+            Aggressiveness,
+            NumberImplemented,
+            FacilityCapacity) {
+
+    // Helper function to build a random vote tally structure (int array of size 20
+    // that contains the amount bid for each policy in each respective cell).
+    // Returns an int array of size 20 with random integers in each cell.
+    this.buildFixedVotes = function(size) {
+        var fixedVotes = new Array(size);
+        for (var a = 0; a < size; a++) {
+            fixedVotes[a] = Math.floor(Math.random() * 1000);
+        }
+        return fixedVotes;
+    }
+
+    this.run = function(
+            Seed,
+            UserArrival,
+            UserDeparture, 
+            VotePeriod, 
+            BiddingAlgorithm, 
+            Simtime, 
+            InputMatrix, 
+            PolicySize,
+            Aggressiveness,
+            NumberImplemented,
+            FacilityCapacity) {
+
+    var sim = new Sim();
+    var rand = new Random(Seed);
+    var matrix;
+    var FixedVotes = this.buildFixedVotes(PolicySize);
+
+    switch (simType) {
+        case "SingleMatrix":
+            matrix = InputMatrix;
+            break;
+        default:
+            matrix = new PolicyMatrix(PolicySize);
+    }
+
+    var fundsBidSeries = new Sim.TimeSeries("Funds Used");
+    var fundsWastedSeries = new Sim.TimeSeries("Wasted Funds");
+    var synergiesSeries = new Sim.TimeSeries("Synergies");
+    var individualSatisfactionSeries = new Sim.TimeSeries("Individual Satisfaction");
+
+    // We need to use an additional data structure to store the Agent objects in order to 
+    // maintain memory of their funds and preferences.
+    var AgentCollection = {};
+
+    // The current set of implemented policies.
+    var CurrentPolicies = [];
+
+    // List of satisfaction measures to be used for plotting satisfaction over time.
+    var SatisfactionOverTime = [];
+    
+    var User = {
+        removeAgent: function() {
+            var identity = this.id;
+            delete AgentCollection[identity];
+        },
+        start: function() {
+            this.agent = new Agent(PolicySize, Aggressiveness, rand);
+
+            if (Object.keys(AgentCollection).length < FacilityCapacity && this.agent.hasSufficientSatisfaction(CurrentPolicies)) {
+                this.id = this.agent.id;
+                var newID = this.agent.id;
+                AgentCollection[newID] = this.agent;
+                var stayTime = rand.exponential(1.0 / UserDeparture);
+                this.setTimer(stayTime).done(this.removeAgent);
+            }
+
+            var nextArrival = rand.exponential(1.0 / UserArrival);
+            this.setTimer(nextArrival).done(this.start);
+        }
+    };
+
+    var SpaceAgent = {
+        start: function() {
+            this.callVote();
+            var nextVote = rand.exponential(1.0 / VotePeriod);
+            this.setTimer(nextVote).done(this.start);
+        },
+
+        callVote: function() {
+            var result;
+
+            switch (simType) {
+                case "FixedPolicies":
+                    result = BiddingAlgorithm(FixedVotes, AgentCollection, matrix, NumberImplemented);
+                    break;
+                default: 
+                    var voteTally = new Array(PolicySize);
+
+                    // Initialize to zero.
+                    for (var a = 0; a < PolicySize; a++) {voteTally[a] = 0; }
+
+                    for (var agent in AgentCollection) {
+                        ballot = AgentCollection[agent].vote();
+                        for (var policy in ballot) {
+                            if (ballot.hasOwnProperty(policy)) {
+                                voteTally[policy] += ballot[policy];
+                            }
+                        }
+                    }
+
+                    result = BiddingAlgorithm(voteTally, AgentCollection, matrix, NumberImplemented);
+            }
+
+            CurrentPolicies = result.policies.slice(); 
+            
+            synergiesSeries.record(result.synergies, sim.time());
+            fundsBidSeries.record(result.fundsBid, sim.time());
+            fundsWastedSeries.record(result.fundsWasted, sim.time());
+        }
+    }
+
+    var SatisfactionLogger = {
+        start : function() {
+            var currentLevel = this.getSatisfaction();
+            individualSatisfactionSeries.record(currentLevel, sim.time());
+            SatisfactionOverTime.push(currentLevel);
+            this.setTimer(1).done(this.start);
+        },
+        getSatisfaction : function() {
+            var level = 0;
+            for (var i in AgentCollection) {
+                var agent = AgentCollection[i];
+                level += agent.getSatisfactionLevel(CurrentPolicies);
+            }
+            return level;
+        }
+    }
+    sim.addEntity(User);
+    sim.addEntity(SpaceAgent);
+    sim.addEntity(SatisfactionLogger);
+
+    sim.simulate(Simtime);
+
+    fundsBidSeries.finalize(sim.time());
+    fundsWastedSeries.finalize(sim.time());
+    synergiesSeries.finalize(sim.time());
+    individualSatisfactionSeries.finalize(sim.time());
+
+    var conclusion = {};
+
+    conclusion["observations"] = synergiesSeries.count();
+
+    conclusion["synergies"] = [
+        synergiesSeries.min().toFixed(2), 
+        synergiesSeries.max().toFixed(2), 
+        synergiesSeries.average().toFixed(2), 
+        synergiesSeries.deviation().toFixed(2)];
+
+    conclusion["individualSatisfaction"] = [
+        individualSatisfactionSeries.min().toFixed(2), 
+        individualSatisfactionSeries.max().toFixed(2), 
+        individualSatisfactionSeries.average().toFixed(2), 
+        individualSatisfactionSeries.deviation().toFixed(2)];
+
+    conclusion["fundsBid"] = [
+        fundsBidSeries.min().toFixed(2), 
+        fundsBidSeries.max().toFixed(2), 
+        fundsBidSeries.average().toFixed(2), 
+        fundsBidSeries.deviation().toFixed(2)];
+
+    conclusion["fundsWasted"] = [
+        fundsWastedSeries.min().toFixed(2), 
+        fundsWastedSeries.max().toFixed(2), 
+        fundsWastedSeries.average().toFixed(2), 
+        fundsWastedSeries.deviation().toFixed(2)];
+
+    conclusion["satisfactionOverTime"] = SatisfactionOverTime;
+
+    return conclusion;
+    }
+}
+
+
 // Agent class. Instantiates an 'Agent' with starting funds, random aggressiveness factor out of 100,
 // vote method, and random set of policy preferences (but generally weighted on A or B (i.e. generally clustered within
 // 0-9 or 10-19)).

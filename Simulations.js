@@ -26,17 +26,6 @@
 //     }
 
 
-// Helper function to build a random vote tally structure (int array of size 20
-// that contains the amount bid for each policy in each respective cell).
-// Returns an int array of size 20 with random integers in each cell.
-function buildFixedVotes(size) {
-    var fixedVotes = new Array(size);
-    for (var a = 0; a < size; a++) {
-        fixedVotes[a] = Math.floor(Math.random() * 1000);
-    }
-    return fixedVotes;
-}
-
 function fixedPolicySimulation(
         Seed,
         UserArrival,
