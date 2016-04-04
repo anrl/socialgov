@@ -8,19 +8,26 @@ var Agent = function(policyMatrixSize, aggressiveness, rng) {
     // Assume everyone starts with same amount of currency.
     this.funds = 100;
 
+    this.preferenceSize = Math.floor(Math.random() * Math.floor(policyMatrixSize/2)) + 1; // Size of preference array of random size between 1 and 10, inclusive.
+    this.preferences = new Array(this.preferenceSize);
+
+    this.getMaxSatisfactionLevel = function() {
+        return this.preferences.length;
+    }
+
     switch (aggressiveness) {
         case "Low":
             this.aggressiveness = rng.normal(25, 5);
+            this.satisfactionThreshold = rng.normal(this.getMaxSatisfactionLevel()*0.25, this.getMaxSatisfactionLevel()*0.05);
             break;
         case "Medium":
             this.aggressiveness = rng.normal(50, 5);
+            this.satisfactionThreshold = rng.normal(this.getMaxSatisfactionLevel()*0.5, this.getMaxSatisfactionLevel()*0.05);
             break;
         case "High":
             this.aggressiveness = rng.normal(75, 5);
+            this.satisfactionThreshold = rng.normal(this.getMaxSatisfactionLevel()*0.75, this.getMaxSatisfactionLevel()*0.05);
     }
-
-    this.preferenceSize = Math.floor(Math.random() * Math.floor(policyMatrixSize/2)) + 1; // Size of preference array of random size between 1 and 10, inclusive.
-    this.preferences = new Array(this.preferenceSize);
 
     // Select one of the policy sets (i.e. A or B).
     var PolicySets = ["A", "B"];
@@ -56,6 +63,24 @@ var Agent = function(policyMatrixSize, aggressiveness, rng) {
             this.funds -= decreaseAmount; 
         }
         return votes;
+    }
+
+    this.getSatisfactionLevel = function(implementedPolicies) {
+        var a = 0;
+        for (var i = 0; i < this.preferences.length; i++) {
+            if (implementedPolicies.indexOf(this.preferences[i]) >= 0) {
+                a++;
+            }
+        }
+        return a;
+    }
+
+    this.hasSufficientSatisfaction = function(implementedPolicies) {
+        if (this.getSatisfactionLevel(implementedPolicies) >= this.satisfactionThreshold) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
 

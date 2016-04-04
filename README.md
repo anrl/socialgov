@@ -60,8 +60,9 @@ Supports
 - Google charts
 - Update README to have a better simulation overview.
 - Limited facility capacity.
+- Minimum required individual satisfaction
 
 TODO
 -----
-- Minimum required individual satisfaction
 - Multithreaded simulation? Only if we want to only use Rhino.
+- Refactor simulations into classes of sims.

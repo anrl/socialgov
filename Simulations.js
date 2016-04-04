@@ -77,8 +77,9 @@ function fixedPolicySimulation(
 
         start: function() {
 
-            if (Object.keys(AgentCollection).length < FacilityCapacity) {
-                this.agent = new Agent(PolicySize, Aggressiveness, rand);
+            this.agent = new Agent(PolicySize, Aggressiveness, rand);
+
+            if (Object.keys(AgentCollection).length < FacilityCapacity && this.agent.hasSufficientSatisfaction(CurrentPolicies)) {
                 this.id = this.agent.id;
                 var newID = this.agent.id;
                 AgentCollection[newID] = this.agent;
@@ -124,12 +125,8 @@ function fixedPolicySimulation(
         getSatisfaction : function() {
             var level = 0;
             for (var i in AgentCollection) {
-                var prefs = AgentCollection[i].preferences;
-                for (var a = 0; a < prefs.length; a++) {
-                    if (CurrentPolicies.indexOf(prefs[a]) >= 0) {
-                        level += 1;
-                    }
-                }
+                var agent = AgentCollection[i];
+                level += agent.getSatisfactionLevel(CurrentPolicies);
             }
             return level;
         }
@@ -215,9 +212,9 @@ function singlePolicyMatrixSimulation(
             delete AgentCollection[identity];
         },
         start: function() {
+            this.agent = new Agent(PolicySize, Aggressiveness, rand);
 
-            if (Object.keys(AgentCollection).length < FacilityCapacity) {
-                this.agent = new Agent(PolicySize, Aggressiveness, rand);
+            if (Object.keys(AgentCollection).length < FacilityCapacity && this.agent.hasSufficientSatisfaction(CurrentPolicies)) {
                 this.id = this.agent.id;
                 var newID = this.agent.id;
                 AgentCollection[newID] = this.agent;
@@ -271,12 +268,8 @@ function singlePolicyMatrixSimulation(
         getSatisfaction : function() {
             var level = 0;
             for (var i in AgentCollection) {
-                var prefs = AgentCollection[i].preferences;
-                for (var a = 0; a < prefs.length; a++) {
-                    if (CurrentPolicies.indexOf(prefs[a]) >= 0) {
-                        level += 1;
-                    }
-                }
+                var agent = AgentCollection[i];
+                level += agent.getSatisfactionLevel(CurrentPolicies);
             }
             return level;
         }
@@ -362,8 +355,9 @@ function randomPolicyMatrixSimulation(
         },
 
         start: function() {
-            if (Object.keys(AgentCollection).length < FacilityCapacity) {
-                this.agent = new Agent(PolicySize, Aggressiveness, rand);
+            this.agent = new Agent(PolicySize, Aggressiveness, rand);
+
+            if (Object.keys(AgentCollection).length < FacilityCapacity && this.agent.hasSufficientSatisfaction(CurrentPolicies)) {
                 this.id = this.agent.id;
                 var newID = this.agent.id;
                 AgentCollection[newID] = this.agent;
@@ -417,12 +411,8 @@ function randomPolicyMatrixSimulation(
         getSatisfaction : function() {
             var level = 0;
             for (var i in AgentCollection) {
-                var prefs = AgentCollection[i].preferences;
-                for (var a = 0; a < prefs.length; a++) {
-                    if (CurrentPolicies.indexOf(prefs[a]) >= 0) {
-                        level += 1;
-                    }
-                }
+                var agents = AgentCollection[i];
+                level += agents.getSatisfactionLevel(CurrentPolicies);
             }
             return level;
         }
