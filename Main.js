@@ -149,7 +149,6 @@ var resultsSet = {
 
 for (var res in resultsSet) {
     var satCSVString = resultsSet[res][0]["satisfactionOverTime"].join();
-    print(satCSVString);
     var f = new File(res);
     var pw = new PrintWriter(f);
     pw.print(satCSVString);

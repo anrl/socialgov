@@ -102,7 +102,6 @@ var Simulation = function(
         },
 
         callVote: function() {
-            print(CurrentPolicies);
             var result;
 
             switch (simType) {
@@ -148,7 +147,6 @@ var Simulation = function(
                 var agent = AgentCollection[i];
                 level += agent.getSatisfactionLevel(CurrentPolicies);
             }
-            print(level);
             return level;
         }
     }
