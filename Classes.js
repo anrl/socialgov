@@ -27,18 +27,21 @@ var Simulation = function(
         return fixedVotes;
     }
 
-    this.run = function(
-            Seed,
-            UserArrival,
-            UserDeparture, 
-            VotePeriod, 
-            BiddingAlgorithm, 
-            Simtime, 
-            InputMatrix, 
-            PolicySize,
-            Aggressiveness,
-            NumberImplemented,
-            FacilityCapacity) {
+    this.buildRandomCurrentPolicies = function(num, pol) {
+        var helperArray = new Array(num);
+        var returnArray = new Array(num);
+        for (var a = 0; a < num; a++) {
+            helperArray[a] = a;
+        }
+        for (var b = 0; b < num; b++) {
+            var index = Math.floor(Math.random() * helperArray.length);
+            returnArray[b] = helperArray[index];
+            helperArray.splice(index, 1);
+        }
+        return returnArray;
+    }
+
+    this.run = function() {
 
     var sim = new Sim();
     var rand = new Random(Seed);
@@ -62,8 +65,9 @@ var Simulation = function(
     // maintain memory of their funds and preferences.
     var AgentCollection = {};
 
-    // The current set of implemented policies.
-    var CurrentPolicies = [];
+    // The current set of implemented policies, randomly initialized.
+
+    var CurrentPolicies = this.buildRandomCurrentPolicies(NumberImplemented, PolicySize);
 
     // List of satisfaction measures to be used for plotting satisfaction over time.
     var SatisfactionOverTime = [];
@@ -76,7 +80,8 @@ var Simulation = function(
         start: function() {
             this.agent = new Agent(PolicySize, Aggressiveness, rand);
 
-            if (Object.keys(AgentCollection).length < FacilityCapacity && this.agent.hasSufficientSatisfaction(CurrentPolicies)) {
+            //if (Object.keys(AgentCollection).length < FacilityCapacity && this.agent.hasSufficientSatisfaction(CurrentPolicies)) {
+            if (Object.keys(AgentCollection).length < FacilityCapacity) {
                 this.id = this.agent.id;
                 var newID = this.agent.id;
                 AgentCollection[newID] = this.agent;
@@ -97,6 +102,7 @@ var Simulation = function(
         },
 
         callVote: function() {
+            print(CurrentPolicies);
             var result;
 
             switch (simType) {
@@ -142,6 +148,7 @@ var Simulation = function(
                 var agent = AgentCollection[i];
                 level += agent.getSatisfactionLevel(CurrentPolicies);
             }
+            print(level);
             return level;
         }
     }

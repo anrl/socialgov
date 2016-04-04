@@ -61,8 +61,9 @@ Supports
 - Update README to have a better simulation overview.
 - Limited facility capacity.
 - Minimum required individual satisfaction
+- Refactor simulations into classes of sims.
 
 TODO
 -----
 - Multithreaded simulation? Only if we want to only use Rhino.
-- Refactor simulations into classes of sims.
+- Fix double counting votes

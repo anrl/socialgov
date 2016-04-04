@@ -64,7 +64,6 @@ function average(arr) {
 
 // Pool standard deviations given a list of stdevs.
 function poolStdev(arr) {
-
 }
 
 // These arrays store the results from each iteration of simulation.
@@ -75,56 +74,56 @@ var NO_POLICY_CHANGES_RESULTS = [];
 // This matrix is used for the fixed policy set simulation.
 var matrix = new PolicyMatrix(POLICY_MATRIX_SIZE);
 
+var RandomMatrixSim = new Simulation(
+        "RandomMatrix", 
+        RANDOM_SEED, 
+        ARRIVAL_RATE, 
+        STAY_TIME, 
+        VOTE_PERIOD, 
+        top5Voted, 
+        SIM_LENGTH, 
+        matrix, 
+        POLICY_MATRIX_SIZE, 
+        AGGRESSIVENESS, 
+        NUMBER_POLICIES_IMPLEMENTED, 
+        FACILITY_CAPACITY);
+var SingleMatrixSim = new Simulation(
+        "SingleMatrix", 
+        RANDOM_SEED, 
+        ARRIVAL_RATE, 
+        STAY_TIME, 
+        VOTE_PERIOD, 
+        top5Voted, 
+        SIM_LENGTH, 
+        matrix, 
+        POLICY_MATRIX_SIZE, 
+        AGGRESSIVENESS, 
+        NUMBER_POLICIES_IMPLEMENTED, 
+        FACILITY_CAPACITY);
+var FixedPoliciesSim = new Simulation(
+        "FixedPolicies", 
+        RANDOM_SEED, 
+        ARRIVAL_RATE, 
+        STAY_TIME, 
+        VOTE_PERIOD, 
+        top5Voted, 
+        SIM_LENGTH, 
+        matrix, 
+        POLICY_MATRIX_SIZE, 
+        AGGRESSIVENESS, 
+        NUMBER_POLICIES_IMPLEMENTED, 
+        FACILITY_CAPACITY);
+
 for (var a = 0; a < NUMBER_OF_SIMS; a++) {
     // Run simulations for random policy matrices each time.
-    RANDOM_POLICY_MATRICES_RESULTS.push(
-            randomPolicyMatrixSimulation(
-                RANDOM_SEED,
-                ARRIVAL_RATE,
-                STAY_TIME,
-                VOTE_PERIOD,
-                top5Voted,
-                SIM_LENGTH,
-                POLICY_MATRIX_SIZE,
-                AGGRESSIVENESS,
-                NUMBER_POLICIES_IMPLEMENTED,
-                FACILITY_CAPACITY
-            )
-    )
+    RANDOM_POLICY_MATRICES_RESULTS.push(RandomMatrixSim.run());
+
     // Run simulations each time on the same policy matrix.
-    SINGLE_POLICY_MATRIX_RESULTS.push(
-            singlePolicyMatrixSimulation(
-                RANDOM_SEED,
-                ARRIVAL_RATE,
-                STAY_TIME,
-                VOTE_PERIOD,
-                top5Voted,
-                SIM_LENGTH,
-                matrix,
-                POLICY_MATRIX_SIZE,
-                AGGRESSIVENESS,
-                NUMBER_POLICIES_IMPLEMENTED,
-                FACILITY_CAPACITY
-            )
-    )
+    SINGLE_POLICY_MATRIX_RESULTS.push(SingleMatrixSim.run());
 
     // Run simulations on a random matrix each time but with no deviation
     // from a fixed set of votes.
-    NO_POLICY_CHANGES_RESULTS.push(
-
-            fixedPolicySimulation(
-                RANDOM_SEED,
-                ARRIVAL_RATE,
-                STAY_TIME,
-                VOTE_PERIOD,
-                top5Voted,
-                SIM_LENGTH,
-                POLICY_MATRIX_SIZE,
-                AGGRESSIVENESS,
-                NUMBER_POLICIES_IMPLEMENTED,
-                FACILITY_CAPACITY
-            )
-    )
+    NO_POLICY_CHANGES_RESULTS.push(FixedPoliciesSim.run());
 }
 
 // Structure of the result of each simulation :
@@ -150,6 +149,7 @@ var resultsSet = {
 
 for (var res in resultsSet) {
     var satCSVString = resultsSet[res][0]["satisfactionOverTime"].join();
+    print(satCSVString);
     var f = new File(res);
     var pw = new PrintWriter(f);
     pw.print(satCSVString);
