@@ -38,6 +38,7 @@ var Simulation = function(
             returnArray[b] = helperArray[index];
             helperArray.splice(index, 1);
         }
+print(returnArray);
         return returnArray;
     }
 
@@ -125,6 +126,8 @@ var Simulation = function(
 
                     result = BiddingAlgorithm(voteTally, AgentCollection, matrix, NumberImplemented);
             }
+
+	    print(result.policies);
 
             CurrentPolicies = result.policies.slice(); 
             
