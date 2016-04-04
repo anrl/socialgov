@@ -5,7 +5,7 @@ load("Algorithms.js");
 importPackage(java.io);
 
 function usage() {
-    print("Usage: rhino Main.js [arrival_rate] [stay_length] [voting_period] [sim_length] [policy_matrix_size] [aggressiveness] [num_policies] [random_seed] [number_of_simulations]");
+    print("Usage: rhino Main.js [arrival_rate] [stay_length] [voting_period] [sim_length] [policy_matrix_size] [aggressiveness] [num_policies] [random_seed] [number_of_simulations] [facility_capacity]");
     print();
     print("Note: All parameters are unit agnostic. Times could be in seconds, minutes, whatever.");
     print();
@@ -20,6 +20,7 @@ function usage() {
     print(" - Number of policies implemented : int");
     print(" - Random seed : float");
     print(" - Number of simulations : int");
+    print(" - Facility capacity : int");
     quit();
 }
 
@@ -33,8 +34,9 @@ AGGRESSIVENESS = arguments[5];
 NUMBER_POLICIES_IMPLEMENTED = parseInt(arguments[6]);
 RANDOM_SEED = parseFloat(arguments[7]);
 NUMBER_OF_SIMS = parseInt(arguments[8]);
+FACILITY_CAPACITY = parseInt(arguments[9]);
 
-if (arguments.length != 9) {
+if (arguments.length != 10) {
     usage();
 } else if (isNaN(ARRIVAL_RATE) // refactor to use Array.prototype.all()
         || isNaN(STAY_TIME)
@@ -44,7 +46,8 @@ if (arguments.length != 9) {
         || AGGRESSIVENESS_ARRAY.indexOf(AGGRESSIVENESS) < 0
         || isNaN(NUMBER_POLICIES_IMPLEMENTED)
         || isNaN(RANDOM_SEED)
-        || isNaN(NUMBER_OF_SIMS)) {
+        || isNaN(NUMBER_OF_SIMS)
+        || isNaN(FACILITY_CAPACITY)) {
     usage();
 }
 
@@ -84,7 +87,8 @@ for (var a = 0; a < NUMBER_OF_SIMS; a++) {
                 SIM_LENGTH,
                 POLICY_MATRIX_SIZE,
                 AGGRESSIVENESS,
-                NUMBER_POLICIES_IMPLEMENTED
+                NUMBER_POLICIES_IMPLEMENTED,
+                FACILITY_CAPACITY
             )
     )
     // Run simulations each time on the same policy matrix.
@@ -99,7 +103,8 @@ for (var a = 0; a < NUMBER_OF_SIMS; a++) {
                 matrix,
                 POLICY_MATRIX_SIZE,
                 AGGRESSIVENESS,
-                NUMBER_POLICIES_IMPLEMENTED
+                NUMBER_POLICIES_IMPLEMENTED,
+                FACILITY_CAPACITY
             )
     )
 
@@ -116,7 +121,8 @@ for (var a = 0; a < NUMBER_OF_SIMS; a++) {
                 SIM_LENGTH,
                 POLICY_MATRIX_SIZE,
                 AGGRESSIVENESS,
-                NUMBER_POLICIES_IMPLEMENTED
+                NUMBER_POLICIES_IMPLEMENTED,
+                FACILITY_CAPACITY
             )
     )
 }
@@ -137,8 +143,8 @@ for (var a = 0; a < NUMBER_OF_SIMS; a++) {
 // - NO_POLICY_CHANGES_RESULTS
 
 var resultsSet = {
-//    "results/random_policy_matrices_results.csv" : RANDOM_POLICY_MATRICES_RESULTS,
-//    "results/single_policy_matrix_results.csv" : SINGLE_POLICY_MATRIX_RESULTS,
+    "results/random_policy_matrices_results.csv" : RANDOM_POLICY_MATRICES_RESULTS,
+    "results/single_policy_matrix_results.csv" : SINGLE_POLICY_MATRIX_RESULTS,
     "results/no_policy_changes_results.csv" : NO_POLICY_CHANGES_RESULTS
 };
 

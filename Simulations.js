@@ -46,7 +46,8 @@ function fixedPolicySimulation(
         Simtime,
         PolicySize,
         Aggressiveness,
-        NumberImplemented) {
+        NumberImplemented,
+        FacilityCapacity) {
     var sim = new Sim();
     var rand = new Random(Seed);
     var matrix = new PolicyMatrix(PolicySize);
@@ -71,17 +72,20 @@ function fixedPolicySimulation(
 
         removeAgent: function() {
             var identity = this.id;
-            delete AgentCollection.identity;
+            delete AgentCollection[identity];
         },
 
         start: function() {
-            this.agent = new Agent(PolicySize, Aggressiveness, rand);
-            this.id = this.agent.id;
-            var newID = this.agent.id;
-            AgentCollection[newID] = this.agent;
 
-            var stayTime = rand.exponential(1.0 / UserDeparture);
-            this.setTimer(stayTime).done(this.removeAgent);
+            if (Object.keys(AgentCollection).length < FacilityCapacity) {
+                this.agent = new Agent(PolicySize, Aggressiveness, rand);
+                this.id = this.agent.id;
+                var newID = this.agent.id;
+                AgentCollection[newID] = this.agent;
+                var stayTime = rand.exponential(1.0 / UserDeparture);
+                this.setTimer(stayTime).done(this.removeAgent);
+            }
+
 
             var nextArrival = rand.exponential(1.0 / UserArrival);
             this.setTimer(nextArrival).done(this.start);
@@ -184,7 +188,8 @@ function singlePolicyMatrixSimulation(
         InputMatrix, 
         PolicySize,
         Aggressiveness,
-        NumberImplemented) {
+        NumberImplemented,
+        FacilityCapacity) {
     var sim = new Sim();
     var rand = new Random(Seed);
     var matrix = InputMatrix;
@@ -207,16 +212,18 @@ function singlePolicyMatrixSimulation(
     var User = {
         removeAgent: function() {
             var identity = this.id;
-            delete AgentCollection.identity;
+            delete AgentCollection[identity];
         },
         start: function() {
-            this.agent = new Agent(PolicySize, Aggressiveness, rand);
-            this.id = this.agent.id;
-            var newID = this.agent.id;
-            AgentCollection[newID] = this.agent;
 
-            var stayTime = rand.exponential(1.0 / UserDeparture);
-            this.setTimer(stayTime).done(this.removeAgent);
+            if (Object.keys(AgentCollection).length < FacilityCapacity) {
+                this.agent = new Agent(PolicySize, Aggressiveness, rand);
+                this.id = this.agent.id;
+                var newID = this.agent.id;
+                AgentCollection[newID] = this.agent;
+                var stayTime = rand.exponential(1.0 / UserDeparture);
+                this.setTimer(stayTime).done(this.removeAgent);
+            }
 
             var nextArrival = rand.exponential(1.0 / UserArrival);
             this.setTimer(nextArrival).done(this.start);
@@ -327,7 +334,8 @@ function randomPolicyMatrixSimulation(
         Simtime, 
         PolicySize,
         Aggressiveness,
-        NumberImplemented) {
+        NumberImplemented,
+        FacilityCapacity) {
     var sim = new Sim();
     var rand = new Random(Seed);
     var matrix = new PolicyMatrix(PolicySize);
@@ -350,17 +358,18 @@ function randomPolicyMatrixSimulation(
     var User = {
         removeAgent: function() {
             var identity = this.id;
-            delete AgentCollection.identity;
+            delete AgentCollection[identity];
         },
 
         start: function() {
-            this.agent = new Agent(PolicySize, Aggressiveness, rand);
-            this.id = this.agent.id;
-            var newID = this.agent.id;
-            AgentCollection[newID] = this.agent;
-
-            var stayTime = rand.exponential(1.0 / UserDeparture);
-            this.setTimer(stayTime).done(this.removeAgent);
+            if (Object.keys(AgentCollection).length < FacilityCapacity) {
+                this.agent = new Agent(PolicySize, Aggressiveness, rand);
+                this.id = this.agent.id;
+                var newID = this.agent.id;
+                AgentCollection[newID] = this.agent;
+                var stayTime = rand.exponential(1.0 / UserDeparture);
+                this.setTimer(stayTime).done(this.removeAgent);
+            }
 
             var nextArrival = rand.exponential(1.0 / UserArrival);
             this.setTimer(nextArrival).done(this.start);

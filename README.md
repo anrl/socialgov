@@ -7,7 +7,7 @@ social policy selection on groups.
 
 Usage
 =====
-rhino Main.js \[arrival\_rate\] \[stay\_length\] \[voting\_period\] \[sim\_length\] \[policy\_matrix\_size\] \[aggressiveness\] \[num\_policies\] \[random\_seed\] \[number\_of\_simulations\]
+rhino Main.js \[arrival\_rate\] \[stay\_length\] \[voting\_period\] \[sim\_length\] \[policy\_matrix\_size\] \[aggressiveness\] \[num\_policies\] \[random\_seed\] \[number\_of\_simulations\] \[facility\_capacity\]
 
 Note: All parameters are unit agnostic. Times could be in seconds, minutes, whatever.
 
@@ -22,6 +22,7 @@ Further description of command line arguments:
  - Number of policies implemented : int
  - Random seed : float
  - Number of simulations : int
+ - Facility capacity : int
 
 
 Simulation Flow
@@ -57,9 +58,10 @@ Supports
 - Stats output
 - Multiple simulations on same policy set
 - Google charts
+- Update README to have a better simulation overview.
+- Limited facility capacity.
 
 TODO
 -----
-- Update README to have a better simulation overview.
-- Limited facility capacity.
 - Minimum required individual satisfaction
+- Multithreaded simulation? Only if we want to only use Rhino.
