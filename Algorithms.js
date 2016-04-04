@@ -24,6 +24,13 @@ function top5Voted(tally, agents, policyMatrix, total) {
     var maxTally = tally.slice(0, total); // Take first elements of sorted tally.
     var wastedTally = tally.slice(total, 20); // Take last elements of sorted tally for waste.
 
+    // Get rid of zeroes in maxTally if there are any.
+    var a = 0
+    while (maxTally[a] != 0) {
+        a++;
+    }
+    maxTally = maxTally.slice(0, a);
+
     // First we calculate funds wasted.
     var waste = 0;
     for (var v in wastedTally) {
@@ -43,8 +50,9 @@ function top5Voted(tally, agents, policyMatrix, total) {
     // (Handle potential duplicate amounts), simultaneously telling us the policies
     // that were implemented.
     var s = 0;
-    for (var i = 0; i < total; i++) {
+    for (var i = 0; i < maxTally.length; i++) {
         var a = oldTally.indexOf(maxTally[i]);
+        print(a);
 
         if (a >= 0) { result.policies.push(a); } // Add the policy number to the policies implemented.
 

@@ -38,7 +38,6 @@ var Simulation = function(
             returnArray[b] = helperArray[index];
             helperArray.splice(index, 1);
         }
-print(returnArray);
         return returnArray;
     }
 
@@ -97,9 +96,7 @@ print(returnArray);
 
     var SpaceAgent = {
         start: function() {
-            this.callVote();
-            var nextVote = rand.exponential(1.0 / VotePeriod);
-            this.setTimer(nextVote).done(this.start);
+            this.setTimer(VotePeriod).done(this.callVote);
         },
 
         callVote: function() {
@@ -127,13 +124,13 @@ print(returnArray);
                     result = BiddingAlgorithm(voteTally, AgentCollection, matrix, NumberImplemented);
             }
 
-	    print(result.policies);
-
             CurrentPolicies = result.policies.slice(); 
             
             synergiesSeries.record(result.synergies, sim.time());
             fundsBidSeries.record(result.fundsBid, sim.time());
             fundsWastedSeries.record(result.fundsWasted, sim.time());
+
+            this.start();
         }
     }
 
