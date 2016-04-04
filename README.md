@@ -67,3 +67,4 @@ TODO
 -----
 - Multithreaded simulation? Only if we want to only use Rhino.
 - Fix double counting votes
+- Double check how voting is handled for voting simulations.
