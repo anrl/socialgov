@@ -1,5 +1,4 @@
 load("RandomAndSimJS.js");
-load("Simulations.js");
 load("Classes.js");
 load("Algorithms.js");
 importPackage(java.io);

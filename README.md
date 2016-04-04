@@ -69,3 +69,4 @@ TODO
 - Fix double counting votes
 - Double check how voting is handled for voting simulations.
 - Something returned by the bidding algorithm is wrong.
+- Varying arrival rates throughout the day?
