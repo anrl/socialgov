@@ -76,6 +76,7 @@ var Simulation = function(
 
     // List of satisfaction measures to be used for plotting satisfaction over time.
     var SatisfactionOverTime = [];
+    var SynergiesOverTime = [];
     
     var User = {
         removeAgent: function() {
@@ -129,12 +130,15 @@ var Simulation = function(
 
             print("Before voting policies: " + CurrentPolicies);
             CurrentPolicies = result.policies.slice(); 
-            box.prettyPrint();
+            if (!simType.equals("FixedPolicies")) {
+                box.prettyPrint();
+            }
             print("Actually implemented: " + CurrentPolicies);
             
             synergiesSeries.record(result.synergies, sim.time());
             fundsBidSeries.record(result.fundsBid, sim.time());
             fundsWastedSeries.record(result.fundsWasted, sim.time());
+            SynergiesOverTime.push(result.synergies);
 
             this.start();
         }
@@ -196,6 +200,7 @@ var Simulation = function(
         fundsWastedSeries.deviation().toFixed(2)];
 
     conclusion["satisfactionOverTime"] = SatisfactionOverTime;
+    conclusion["synergiesOverTime"] = SynergiesOverTime;
 
     return conclusion;
     }

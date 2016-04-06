@@ -118,11 +118,11 @@ for (var a = 0; a < NUMBER_OF_SIMS; a++) {
     RANDOM_POLICY_MATRICES_RESULTS.push(RandomMatrixSim.run());
 
     // Run simulations each time on the same policy matrix.
-//    SINGLE_POLICY_MATRIX_RESULTS.push(SingleMatrixSim.run());
+    SINGLE_POLICY_MATRIX_RESULTS.push(SingleMatrixSim.run());
 
     // Run simulations on a random matrix each time but with no deviation
     // from a fixed set of votes.
-//    NO_POLICY_CHANGES_RESULTS.push(FixedPoliciesSim.run());
+    NO_POLICY_CHANGES_RESULTS.push(FixedPoliciesSim.run());
 }
 
 // Structure of the result of each simulation :
@@ -141,15 +141,20 @@ for (var a = 0; a < NUMBER_OF_SIMS; a++) {
 // - NO_POLICY_CHANGES_RESULTS
 
 var resultsSet = {
-    "results/random_policy_matrices_results.csv" : RANDOM_POLICY_MATRICES_RESULTS,
-//    "results/single_policy_matrix_results.csv" : SINGLE_POLICY_MATRIX_RESULTS,
-//    "results/no_policy_changes_results.csv" : NO_POLICY_CHANGES_RESULTS
+    "results/random_policy_matrices" : RANDOM_POLICY_MATRICES_RESULTS,
+    "results/single_policy_matrix" : SINGLE_POLICY_MATRIX_RESULTS,
+    "results/no_policy_changes" : NO_POLICY_CHANGES_RESULTS
 };
 
 for (var res in resultsSet) {
     var satCSVString = resultsSet[res][0]["satisfactionOverTime"].join();
-    var f = new File(res);
+    var synCSVString = resultsSet[res][0]["synergiesOverTime"].join();
+    var f = new File(res + "_satisfaction.csv");
+    var ff = new File(res + "_synergies.csv");
     var pw = new PrintWriter(f);
+    var pww = new PrintWriter(ff);
     pw.print(satCSVString);
+    pww.print(synCSVString);
     pw.close();
+    pww.close();
 }
