@@ -15,52 +15,40 @@ function top10Synergies(tally, agents, policyMatrix) {
 }
 
 // top5Voted calculates the effect of just taking the top [total] voted policies.
-function top5Voted(tally, agents, policyMatrix, total) {
+// ballot
+function top5Voted(ballotBox, agents, policyMatrix, total) {
+    ballotBox.sortByBid();
+
     var matrix = policyMatrix.weights;
     var result = {};
     result.policies = [];
-    var oldTally = tally.slice();
-    tally.sort(function(a, b) {return (b - a);});
-    var maxTally = tally.slice(0, total); // Take first elements of sorted tally.
-    var wastedTally = tally.slice(total, 20); // Take last elements of sorted tally for waste.
-
-    // Get rid of zeroes in maxTally if there are any.
-    var a = 0
-    while (maxTally[a] != 0) {
-        a++;
-    }
-    maxTally = maxTally.slice(0, a);
 
     // First we calculate funds wasted.
     var waste = 0;
-    for (var v in wastedTally) {
-        if (wastedTally[v] > 0) { waste += wastedTally[v]; }
+    if (total < ballotBox.votes.length) {
+        for (var a = total; a < ballotBox.votes.length; a++) {
+            waste += ballotBox.votes[a].bid;
+        }
     }
     result.fundsWasted = waste;
 
     // Then we calculate total funds bid.
     var f = 0;
-    for (var bid in maxTally) {
-        if (maxTally[bid] > 0) { f += maxTally[bid]; }
+    for (var i = 0; i < ballotBox.votes.length; i++) {
+        f += ballotBox.votes[i].bid;
     }
-    f += waste;
     result.fundsBid = f;
 
     // Then we calculate the total synergies achieved using the policy matrix.
     // (Handle potential duplicate amounts), simultaneously telling us the policies
     // that were implemented.
     var s = 0;
-    for (var i = 0; i < maxTally.length; i++) {
-        var a = oldTally.indexOf(maxTally[i]);
-        print(a);
-
-        if (a >= 0) { result.policies.push(a); } // Add the policy number to the policies implemented.
-
-        for (var j = i; j < total; j++) {
-            var b = oldTally.indexOf(maxTally[j]);
-            if (a >= 0 && b >= 0) { 
-                s += matrix[a][b];
-            }
+    for (var a = 0; a < ballotBox.votes.length; a++) {
+        var policy1 = ballotBox.votes[a].policy;
+        result.policies.push(policy1);
+        for (var b = a; b < ballotBox.votes.length; b++) {
+            var policy2 = ballotBox.votes[b].policy;
+            s += matrix[policy1][policy2];
         }
     }
     result.synergies = s;

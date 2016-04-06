@@ -70,3 +70,4 @@ TODO
 - Double check how voting is handled for voting simulations.
 - Something returned by the bidding algorithm is wrong.
 - Varying arrival rates throughout the day?
+- Fix top5Voted bidding algorithm to better handle cases where two policies have the same bids.

@@ -47,6 +47,11 @@ var Simulation = function(
     var rand = new Random(Seed);
     var matrix;
     var FixedVotes = this.buildFixedVotes(PolicySize);
+    var fixedBallotBox = new BallotBox();
+    for (var a = 0; a < FixedVotes.length; a++) {
+        var v = new Vote(a, FixedVotes[a]);
+        fixedBallotBox.addVote(v);
+    }
 
     switch (simType) {
         case "SingleMatrix":
@@ -100,28 +105,26 @@ var Simulation = function(
         },
 
         callVote: function() {
+            // Finish debugging problem with infinite loop.
+            // Apparently callVote is only called once?
             var result;
 
             switch (simType) {
                 case "FixedPolicies":
-                    result = BiddingAlgorithm(FixedVotes, AgentCollection, matrix, NumberImplemented);
+                    result = BiddingAlgorithm(fixedBallotBox, AgentCollection, matrix, NumberImplemented);
                     break;
                 default: 
-                    var voteTally = new Array(PolicySize);
-
-                    // Initialize to zero.
-                    for (var a = 0; a < PolicySize; a++) {voteTally[a] = 0; }
+                    var box = new BallotBox();
 
                     for (var agent in AgentCollection) {
-                        ballot = AgentCollection[agent].vote();
-                        for (var policy in ballot) {
-                            if (ballot.hasOwnProperty(policy)) {
-                                voteTally[policy] += ballot[policy];
-                            }
+                        var votes = AgentCollection[agent].vote();
+                        for (var e = 0; e < (votes.length); e++) {
+                            var agentVote = votes[e];
+                            box.addVote(agentVote);
                         }
                     }
 
-                    result = BiddingAlgorithm(voteTally, AgentCollection, matrix, NumberImplemented);
+                    result = BiddingAlgorithm(box, AgentCollection, matrix, NumberImplemented);
             }
 
             CurrentPolicies = result.policies.slice(); 
@@ -235,30 +238,31 @@ var Agent = function(policyMatrixSize, aggressiveness, rng) {
     for (var i = 0; i < Math.floor(this.preferenceSize/2); i++) {
         switch (this.preferredSet) {
             case "A":
-                this.preferences[i] = Math.floor(Math.random() * Math.floor(policyMatrixSize/2)); // If we prefer policy set A, then pick policies guaranteed to be in A for the first half of the policy preferences.
+                this.preferences[i] = Math.floor(Math.random() * Math.floor(policyMatrixSize/2));
                 break;
             case "B":
-                this.preferences[i] = Math.floor(Math.random() * (policyMatrixSize/2) + (policyMatrixSize/2)); // If we prefer policy set B, then pick policies guaranteed to be in B for the first half.
+                this.preferences[i] = Math.floor(Math.random() * (policyMatrixSize/2) + (policyMatrixSize/2));
         }
     }
 
-    for (var i = Math.floor(this.preferenceSize/2) + 1; i < this.preferenceSize; i++) {
+    for (var i = Math.floor(this.preferenceSize/2); i < this.preferenceSize; i++) {
         this.preferences[i] = Math.floor(Math.random() * policyMatrixSize); // Last half will contain policies from either group.
     }
 
-    // Vote function should return amount spent on each preferred policy in a JSON object, associating
+    // Vote function should return amount spent on each preferred policy in a Vote array, associating
     // votes to amounts. If the Agent has insufficient funds, it will return an empty object.
     this.vote = function() {
-        votes = {};
+        votes = [];
         // Builds the 'votes' object starting from the first element in the preferences array and bidding the aggressiveness amount
         // for each until they have bid on all their preferred policies or run out of funds.
-        for (var policy in this.preferences) {
+        for (var a = 0; a < this.preferences.length; a++) {
             if (this.funds == 0) {
                 break;
             }
             var decreaseAmount = Math.min(this.funds, this.aggressiveness);
-            votes[policy] = decreaseAmount;
+            var newVote = new Vote(this.preferences[a], decreaseAmount);
             this.funds -= decreaseAmount; 
+            votes.push(newVote);
         }
         return votes;
     }
@@ -279,6 +283,49 @@ var Agent = function(policyMatrixSize, aggressiveness, rng) {
         } else {
             return false;
         }
+    }
+}
+
+var Vote = function(p, v) {
+    this.policy = p;
+    this.bid = v;
+}
+
+var BallotBox = function() {
+    this.votes = []; // array of Votes
+    this.addVote = function(voteObject) {
+        if (this.hasPolicy(voteObject)) {
+            var i = 0;
+            while (this.votes[i].policy != voteObject.policy) {
+                i++;
+            }
+            this.votes[i].bid += voteObject.bid;
+        } else {
+            this.votes.push(voteObject);
+        }
+    }
+
+    // Sorts by bid sizes in descending order.
+    this.sortByBid = function() {
+        this.votes.sort( function(a, b) { return (b.bid - a.bid); });
+    }
+
+    // Sorts by policy number in ascending order.
+    this.sortByPolicy = function() {
+        this.votes.sort(
+                function(a, b) {
+                    return (a.policy - b.policy);
+                }
+        );
+    }
+
+    this.hasPolicy = function(vote) {
+        for (var a = 0; a < this.votes.length; a++) {
+            if (this.votes[a].policy == vote.policy) {
+                return true;
+            }
+        }
+        return false;
     }
 }
 
@@ -340,4 +387,5 @@ var PolicyMatrix = function(size) {
                 this.weights[b][a] = (-1) * Math.random() * multiplier;
             }
         }
-    }}
+    }
+}
