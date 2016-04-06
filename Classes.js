@@ -127,7 +127,10 @@ var Simulation = function(
                     result = BiddingAlgorithm(box, AgentCollection, matrix, NumberImplemented);
             }
 
+            print("Before voting policies: " + CurrentPolicies);
             CurrentPolicies = result.policies.slice(); 
+            box.prettyPrint();
+            print("Actually implemented: " + CurrentPolicies);
             
             synergiesSeries.record(result.synergies, sim.time());
             fundsBidSeries.record(result.fundsBid, sim.time());
@@ -248,7 +251,6 @@ var Agent = function(policyMatrixSize, aggressiveness, rng) {
     for (var i = Math.floor(this.preferenceSize/2); i < this.preferenceSize; i++) {
         this.preferences[i] = Math.floor(Math.random() * policyMatrixSize); // Last half will contain policies from either group.
     }
-
     // Vote function should return amount spent on each preferred policy in a Vote array, associating
     // votes to amounts. If the Agent has insufficient funds, it will return an empty object.
     this.vote = function() {
@@ -326,6 +328,15 @@ var BallotBox = function() {
             }
         }
         return false;
+    }
+
+    this.prettyPrint = function() {
+        var s = "";
+        for (var a = 0; a < this.votes.length; a++) {
+            s += (this.votes[a].policy + ", ");
+        }
+        s.slice(s.length-2, 2);
+        print("Policies being voted on: " + s);
     }
 }
 

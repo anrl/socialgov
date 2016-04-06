@@ -43,10 +43,10 @@ function top5Voted(ballotBox, agents, policyMatrix, total) {
     // (Handle potential duplicate amounts), simultaneously telling us the policies
     // that were implemented.
     var s = 0;
-    for (var a = 0; a < ballotBox.votes.length; a++) {
+    for (var a = 0; a < Math.min(total, ballotBox.votes.length); a++) {
         var policy1 = ballotBox.votes[a].policy;
         result.policies.push(policy1);
-        for (var b = a; b < ballotBox.votes.length; b++) {
+        for (var b = a; b < Math.min(total, ballotBox.votes.length); b++) {
             var policy2 = ballotBox.votes[b].policy;
             s += matrix[policy1][policy2];
         }
