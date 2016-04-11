@@ -154,15 +154,25 @@ var randomSat = satisfactionZip(RANDOM_POLICY_MATRICES_RESULTS);
 var singleSat = satisfactionZip(SINGLE_POLICY_MATRIX_RESULTS);
 var noPolicyChangesSat = satisfactionZip(NO_POLICY_CHANGES_RESULTS);
 
+var randomSyn = synergiesZip(RANDOM_POLICY_MATRICES_RESULTS);
+var singleSyn = synergiesZip(SINGLE_POLICY_MATRIX_RESULTS);
+var noPolicyChangesSyn = synergiesZip(NO_POLICY_CHANGES_RESULTS);
+
 var satisfactionSet = {
     "results/random_policy_matrices" : randomSat,
     "results/single_policy_matrix" : singleSat,
     "results/no_policy_changes" : noPolicyChangesSat
 }
 
+var synergiesSet  = {
+    "results/random_policy_matrices" : randomSyn,
+    "results/single_policy_matrix" : singleSyn,
+    "results/no_policy_changes" : noPolicyChangesSyn
+}
+
 for (var res in resultsSet) {
     var satCSVString = satisfactionSet[res].join();
-    var synCSVString = resultsSet[res][0]["synergiesOverTime"].join();
+    var synCSVString = synergiesSet[res].join();
     var f = new File(res + "_satisfaction.csv");
     var ff = new File(res + "_synergies.csv");
     var pw = new PrintWriter(f);
