@@ -1,6 +1,7 @@
 load("RandomAndSimJS.js");
 load("Classes.js");
 load("Algorithms.js");
+load("lib.js");
 importPackage(java.io);
 
 function usage() {
@@ -86,6 +87,7 @@ var RandomMatrixSim = new Simulation(
         AGGRESSIVENESS, 
         NUMBER_POLICIES_IMPLEMENTED, 
         FACILITY_CAPACITY);
+
 var SingleMatrixSim = new Simulation(
         "SingleMatrix", 
         RANDOM_SEED, 
@@ -99,6 +101,7 @@ var SingleMatrixSim = new Simulation(
         AGGRESSIVENESS, 
         NUMBER_POLICIES_IMPLEMENTED, 
         FACILITY_CAPACITY);
+
 var FixedPoliciesSim = new Simulation(
         "FixedPolicies", 
         RANDOM_SEED, 
@@ -133,6 +136,7 @@ for (var a = 0; a < NUMBER_OF_SIMS; a++) {
 //          "fundsBid"               : [min, max, average, stdev];
 //          "fundsWasted"            : [min, max, average, stdev];
 //          "satisfactionOverTime"   : [array of observations];
+//          "synergiesOverTime"      : [array of observations];
 //     }
 //
 // We currently have arrays of these results:
@@ -146,8 +150,18 @@ var resultsSet = {
     "results/no_policy_changes" : NO_POLICY_CHANGES_RESULTS
 };
 
+var randomSat = satisfactionZip(RANDOM_POLICY_MATRICES_RESULTS);
+var singleSat = satisfactionZip(SINGLE_POLICY_MATRIX_RESULTS);
+var noPolicyChangesSat = satisfactionZip(NO_POLICY_CHANGES_RESULTS);
+
+var satisfactionSet = {
+    "results/random_policy_matrices" : randomSat,
+    "results/single_policy_matrix" : singleSat,
+    "results/no_policy_changes" : noPolicyChangesSat
+}
+
 for (var res in resultsSet) {
-    var satCSVString = resultsSet[res][0]["satisfactionOverTime"].join();
+    var satCSVString = satisfactionSet[res].join();
     var synCSVString = resultsSet[res][0]["synergiesOverTime"].join();
     var f = new File(res + "_satisfaction.csv");
     var ff = new File(res + "_synergies.csv");

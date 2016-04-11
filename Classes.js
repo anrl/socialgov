@@ -147,11 +147,7 @@ var Simulation = function(
                 }
             }
             CurrentPolicies.sortByBid();
-            print("before");
-            CurrentPolicies.prettyPrint();
             CurrentPolicies.cutVotes(NumberImplemented);
-            print("after");
-            CurrentPolicies.prettyPrint();
             
             synergiesSeries.record(result.synergies, sim.time());
             fundsBidSeries.record(result.fundsBid, sim.time());
