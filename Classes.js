@@ -136,10 +136,15 @@ var Simulation = function(
 
             for (var a = 0; a < PotentiallyNewPolicies.length; a++) {
                 var newP = PotentiallyNewPolicies[a];
+                // Replace only if the new policy has more bids.
                 if (CurrentPolicies.hasPolicy(newP)) {
-                    CurrentPolicies.removePolicy(newP);
+                    if (CurrentPolicies.getBid(newP) < newP.bid) {
+                        CurrentPolicies.removePolicy(newP);
+                        CurrentPolicies.addVote(newP);
+                    }
+                } else {
+                    CurrentPolicies.addVote(PotentiallyNewPolicies[a]);
                 }
-                CurrentPolicies.addVote(PotentiallyNewPolicies[a]);
             }
             CurrentPolicies.sortByBid();
             print("before");
@@ -327,6 +332,18 @@ var BallotBox = function() {
         } else {
             this.votes.push(voteObject);
         }
+    }
+
+    this.getBid = function(vote) {
+        var p = vote.policy;
+        var a = 0;
+        while (a < this.votes.length) {
+            if (p == this.votes[a].policy) {
+                return this.votes[a].bid;
+            }
+            a++;
+        }
+        return 0;
     }
 
     // Ensure the max number of votes.
