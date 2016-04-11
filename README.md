@@ -67,3 +67,4 @@ TODO
 -----
 - Double check how voting is handled for voting simulations.
 - Varying arrival rates throughout the day?
+- Zip together all results from all simulations to get an overlay chart
