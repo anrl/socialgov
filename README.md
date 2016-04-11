@@ -36,7 +36,7 @@ Simulation Flow
 
 Additional information
 =====
-We assume that policies can be separated into categories (e.g. democratic vs. republican, smoking vs. non-smoking), and that
+We assume that policies can be separated into categories (e.g. Democrat vs. Republican, smoking vs. non-smoking), and that
 policies that lie within the same category work well together and have synergistic effects.
 Thus, the policies are modeled as an N by N matrix, where there are a total of N policies in the simulation universe, and policies
 are numbered in their natural ordering up to N.
@@ -68,3 +68,4 @@ TODO
 - Double check how voting is handled for voting simulations.
 - Varying arrival rates throughout the day?
 - Zip together all results from all simulations to get an overlay chart
+- Over time funds bid and wasted + plotting
