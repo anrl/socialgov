@@ -67,6 +67,3 @@ TODO
 -----
 - Double check how voting is handled for voting simulations.
 - Varying arrival rates throughout the day?
-- Fix top5Voted bidding algorithm to better handle cases where two policies have the same bids.
-- Instead of just replacing all policies, we could try just replacing the less popular ones with more popular ones.
-- Plot synergies
