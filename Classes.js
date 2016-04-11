@@ -28,17 +28,18 @@ var Simulation = function(
     }
 
     this.buildRandomCurrentPolicies = function(num, pol) {
+        var returnBox = new BallotBox();
         var helperArray = new Array(num);
-        var returnArray = new Array(num);
         for (var a = 0; a < num; a++) {
             helperArray[a] = a;
         }
         for (var b = 0; b < num; b++) {
             var index = Math.floor(Math.random() * helperArray.length);
-            returnArray[b] = helperArray[index];
+            var newVote = new Vote(index, 0);
+            returnBox.addVote(newVote);
             helperArray.splice(index, 1);
         }
-        return returnArray;
+        return returnBox;
     }
 
     this.run = function() {
@@ -115,25 +116,37 @@ var Simulation = function(
                     result = BiddingAlgorithm(fixedBallotBox, AgentCollection, matrix, NumberImplemented);
                     break;
                 default: 
-                    var box = new BallotBox();
 
-                    for (var agent in AgentCollection) {
-                        var votes = AgentCollection[agent].vote();
-                        for (var e = 0; e < (votes.length); e++) {
-                            var agentVote = votes[e];
-                            box.addVote(agentVote);
-                        }
+                var box = new BallotBox();
+
+                for (var agent in AgentCollection) {
+                    var votes = AgentCollection[agent].vote();
+                    for (var e = 0; e < (votes.length); e++) {
+                        var agentVote = votes[e];
+                        box.addVote(agentVote);
                     }
+                }
 
-                    result = BiddingAlgorithm(box, AgentCollection, matrix, NumberImplemented);
+                result = BiddingAlgorithm(box, AgentCollection, matrix, NumberImplemented);
             }
 
-            print("Before voting policies: " + CurrentPolicies);
-            CurrentPolicies = result.policies.slice(); 
-            if (!simType.equals("FixedPolicies")) {
-                box.prettyPrint();
+
+            // Change how current policies are changed.
+            var PotentiallyNewPolicies = result.policies.votes.slice();
+
+            for (var a = 0; a < PotentiallyNewPolicies.length; a++) {
+                var newP = PotentiallyNewPolicies[a];
+                if (CurrentPolicies.hasPolicy(newP)) {
+                    CurrentPolicies.removePolicy(newP);
+                }
+                CurrentPolicies.addVote(PotentiallyNewPolicies[a]);
             }
-            print("Actually implemented: " + CurrentPolicies);
+            CurrentPolicies.sortByBid();
+            print("before");
+            CurrentPolicies.prettyPrint();
+            CurrentPolicies.cutVotes(NumberImplemented);
+            print("after");
+            CurrentPolicies.prettyPrint();
             
             synergiesSeries.record(result.synergies, sim.time());
             fundsBidSeries.record(result.fundsBid, sim.time());
@@ -276,8 +289,12 @@ var Agent = function(policyMatrixSize, aggressiveness, rng) {
 
     this.getSatisfactionLevel = function(implementedPolicies) {
         var a = 0;
+        var policyArray = [];
+        for (var j = 0; j < implementedPolicies.votes.length; j++) {
+            policyArray.push(implementedPolicies.votes[j].policy);
+        }
         for (var i = 0; i < this.preferences.length; i++) {
-            if (implementedPolicies.indexOf(this.preferences[i]) >= 0) {
+            if (policyArray.indexOf(this.preferences[i]) >= 0) {
                 a++;
             }
         }
@@ -312,6 +329,11 @@ var BallotBox = function() {
         }
     }
 
+    // Ensure the max number of votes.
+    this.cutVotes = function(max) {
+        this.votes.splice(max, this.votes.length);
+    }
+
     // Sorts by bid sizes in descending order.
     this.sortByBid = function() {
         this.votes.sort( function(a, b) { return (b.bid - a.bid); });
@@ -324,6 +346,19 @@ var BallotBox = function() {
                     return (a.policy - b.policy);
                 }
         );
+    }
+
+    this.removePolicy = function(vote) {
+        var p = vote.policy;
+        var a = 0;
+        while (a < this.votes.length) {
+            if (this.votes[a].policy == p) {
+                this.votes.splice(a, 1);
+                break;
+            }
+            a++;
+        }
+
     }
 
     this.hasPolicy = function(vote) {
@@ -341,7 +376,7 @@ var BallotBox = function() {
             s += (this.votes[a].policy + ", ");
         }
         s.slice(s.length-2, 2);
-        print("Policies being voted on: " + s);
+        print(s);
     }
 }
 

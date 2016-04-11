@@ -11,7 +11,6 @@ var Algorithm = function(type) {
 
 // top10SocialWelfare takes the top 10 voted and picks the 5 of them that maximize social welfare.
 function top10Synergies(tally, agents, policyMatrix) {
-
 }
 
 // top5Voted calculates the effect of just taking the top [total] voted policies.
@@ -21,7 +20,7 @@ function top5Voted(ballotBox, agents, policyMatrix, total) {
 
     var matrix = policyMatrix.weights;
     var result = {};
-    result.policies = [];
+    result.policies = new BallotBox();
 
     // First we calculate funds wasted.
     var waste = 0;
@@ -45,7 +44,7 @@ function top5Voted(ballotBox, agents, policyMatrix, total) {
     var s = 0;
     for (var a = 0; a < Math.min(total, ballotBox.votes.length); a++) {
         var policy1 = ballotBox.votes[a].policy;
-        result.policies.push(policy1);
+        result.policies.addVote(ballotBox.votes[a]);
         for (var b = a; b < Math.min(total, ballotBox.votes.length); b++) {
             var policy2 = ballotBox.votes[b].policy;
             s += matrix[policy1][policy2];
