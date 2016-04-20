@@ -50,7 +50,11 @@ function top5Voted(ballotBox, agents, policyMatrix, total) {
             s += matrix[policy1][policy2];
         }
     }
-    result.synergies = s;
+    if (isNaN(s)) {
+        result.synergies = 0;
+    } else {
+        result.synergies = s;
+    }
 
     // Finally, we calculate the amount of individual satisfaction achieved.
     // var ind = 0;

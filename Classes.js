@@ -78,6 +78,8 @@ var Simulation = function(
     // List of satisfaction measures to be used for plotting satisfaction over time.
     var SatisfactionOverTime = [];
     var SynergiesOverTime = [];
+    var FundsBidOverTime = [];
+    var FundsWastedOverTime = [];
     
     var User = {
         removeAgent: function() {
@@ -153,6 +155,8 @@ var Simulation = function(
             fundsBidSeries.record(result.fundsBid, sim.time());
             fundsWastedSeries.record(result.fundsWasted, sim.time());
             SynergiesOverTime.push(result.synergies);
+            FundsBidOverTime.push(result.fundsBid);
+            FundsWastedOverTime.push(result.fundsWasted);
 
             this.start();
         }
@@ -215,6 +219,8 @@ var Simulation = function(
 
     conclusion["satisfactionOverTime"] = SatisfactionOverTime;
     conclusion["synergiesOverTime"] = SynergiesOverTime;
+    conclusion["fundsBidOverTime"] = FundsBidOverTime;
+    conclusion["fundsWastedOverTime"] = FundsWastedOverTime;
 
     return conclusion;
     }
@@ -389,7 +395,6 @@ var BallotBox = function() {
             s += (this.votes[a].policy + ", ");
         }
         s.slice(s.length-2, 2);
-        print(s);
     }
 }
 

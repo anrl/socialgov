@@ -158,6 +158,26 @@ var randomSyn = synergiesZip(RANDOM_POLICY_MATRICES_RESULTS);
 var singleSyn = synergiesZip(SINGLE_POLICY_MATRIX_RESULTS);
 var noPolicyChangesSyn = synergiesZip(NO_POLICY_CHANGES_RESULTS);
 
+var randomBid = bidZip(RANDOM_POLICY_MATRICES_RESULTS);
+var singleBid = bidZip(SINGLE_POLICY_MATRIX_RESULTS);
+var noPolicyChangesBid = bidZip(NO_POLICY_CHANGES_RESULTS);
+
+var randomWaste = wasteZip(RANDOM_POLICY_MATRICES_RESULTS);
+var singleWaste = wasteZip(SINGLE_POLICY_MATRIX_RESULTS);
+var noPolicyChangesWaste = wasteZip(NO_POLICY_CHANGES_RESULTS);
+
+var fundsBidSet = {
+    "results/random_policy_matrices" : randomBid,
+    "results/single_policy_matrix" : singleBid,
+    "results/no_policy_changes" : noPolicyChangesBid
+}
+
+var fundsWastedSet = {
+    "results/random_policy_matrices" : randomWaste,
+    "results/single_policy_matrix" : singleWaste,
+    "results/no_policy_changes" : noPolicyChangesWaste
+}
+
 var satisfactionSet = {
     "results/random_policy_matrices" : randomSat,
     "results/single_policy_matrix" : singleSat,
@@ -173,12 +193,22 @@ var synergiesSet  = {
 for (var res in resultsSet) {
     var satCSVString = satisfactionSet[res].join();
     var synCSVString = synergiesSet[res].join();
+    var bidCSVString = fundsBidSet[res].join();
+    var wasteCSVString = fundsWastedSet[res].join();
     var f = new File(res + "_satisfaction.csv");
     var ff = new File(res + "_synergies.csv");
+    var fff = new File(res + "_fundsBid.csv");
+    var ffff = new File(res + "_fundsWasted.csv");
     var pw = new PrintWriter(f);
     var pww = new PrintWriter(ff);
+    var pwww = new PrintWriter(fff);
+    var pwwww = new PrintWriter(ffff);
     pw.print(satCSVString);
     pww.print(synCSVString);
+    pwww.print(bidCSVString);
+    pwwww.print(wasteCSVString);
     pw.close();
     pww.close();
+    pwww.close();
+    pwwww.close();
 }
